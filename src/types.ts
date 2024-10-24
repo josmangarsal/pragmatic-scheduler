@@ -46,4 +46,9 @@ export type Config = {
   daysToDisplay: number;
 };
 
-export type GridCellLayout = GridLayout.Layout & { day: ScheduleDay; division: Division; resourceId: string };
+export type GridCellLayout = GridLayout.Layout & {day: ScheduleDay; division: Division; resourceId: string};
+
+export type IntervalOption = {
+  label: string;
+  value: number;
+};
