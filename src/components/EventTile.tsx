@@ -31,7 +31,7 @@ const DefaultEventTile = ({ event }: { event: CalEvent }) => {
           {event.title}
         </InnerText>
         <InnerText color={event.textColor || 'text.primary'}>
-          {`${format(event.startTime, 'HHmm')}-${format(event.endTime, 'HHmm')}`}
+          {`${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`}
         </InnerText>
       </Box>
     </Container>
