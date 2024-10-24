@@ -3,7 +3,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { Box, BoxProps, styled } from '@mui/material';
 import { ScheduleDay, Resource, CalEvent, Config, DivisionDetail, GridCellLayout } from '../types';
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, setHours, setMinutes } from 'date-fns';
 import { defaultConfig, defaultDivisionDetails } from '../constants/defaults';
 import { useDateToDivisions } from '../hooks/useDateToDivisions';
 import { TimelineView } from '../views/TimelineView';
@@ -84,7 +84,7 @@ export const Scheduler = ({
   EventTile?: React.FC<{ event: CalEvent }>;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
-  const firstDay = useMemo(() => addDays(activeDate, -1), [activeDate]);
+  const firstDay = useMemo(() => addDays(setHours(setMinutes(activeDate, 0), 0), -1), [activeDate]);
   const lastDay = useMemo(() => endOfDay(addDays(firstDay, config.daysToDisplay)), [firstDay, config.daysToDisplay]);
   const days = useMemo(() => {
     const date = new Date(firstDay);
