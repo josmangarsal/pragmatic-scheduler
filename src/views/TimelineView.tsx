@@ -1,17 +1,18 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { SchedulerContext } from '../components/Scheduler';
-import { HeaderRow, UnAssignedEvents } from '../components/HeaderRow';
-import { Box } from '@mui/material';
-import { ResourceCell } from '../layout/ResourceCell';
-import { ResourceHeader } from '../layout/ResourceHeader';
-import { GridCell } from '../layout/GridCell';
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {SchedulerContext} from '../components/Scheduler';
+import {HeaderRow, UnAssignedEvents} from '../components/HeaderRow';
+import {Box} from '@mui/material';
+import {ResourceCell} from '../layout/ResourceCell';
+import {ResourceHeader} from '../layout/ResourceHeader';
+import {GridCell} from '../layout/GridCell';
 import GridLayout from 'react-grid-layout';
-import { EventTile } from '../components/EventTile';
-import { UnassignedHeader } from '../components/UnassignedHeader';
-import { useCalcEventPosition } from '../hooks/useCalcEventPosition';
-import { useLayoutToCalEvent } from '../hooks/useLayoutToCalEvent';
-import { useCalcGridPositions } from '../hooks/useCalcGridPositions';
-import { CalEvent } from '../types';
+import {EventTile} from '../components/EventTile';
+import {UnassignedHeader} from '../components/UnassignedHeader';
+import {useCalcEventPosition} from '../hooks/useCalcEventPosition';
+import {useLayoutToCalEvent} from '../hooks/useLayoutToCalEvent';
+import {useCalcGridPositions} from '../hooks/useCalcGridPositions';
+import {CalEvent} from '../types';
+import {isBefore} from 'date-fns';
 
 export const TimelineView = () => {
   const {
@@ -20,7 +21,7 @@ export const TimelineView = () => {
     days,
     config,
     activeDate,
-    calendarBounds: { totalDivisions },
+    calendarBounds: {totalDivisions, start, end},
     onEventChange,
   } = useContext(SchedulerContext);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -30,7 +31,7 @@ export const TimelineView = () => {
   const gridLayouts = useCalcGridPositions();
 
   const [dragCalEvent, setDragCalEvent] = useState<CalEvent | undefined>();
-  const [droppingItem, setDroppingItem] = useState<GridLayout.Layout>({ i: 'droppedItem', w: 4, h: 1, x: 0, y: 0 });
+  const [droppingItem, setDroppingItem] = useState<GridLayout.Layout>({i: 'droppedItem', w: 4, h: 1, x: 0, y: 0});
   const [layouts, setLayouts] = useState<GridLayout.Layout[]>(gridLayouts);
 
   const updateLayout = useCallback(
@@ -43,12 +44,24 @@ export const TimelineView = () => {
   );
 
   useEffect(() => {
-    // scroll to the current date (there is 1 day in the past)
-    ref.current?.scrollTo({
-      left: ref.current.scrollWidth * (1 / (config.daysToDisplay + 1)),
-      behavior: 'smooth',
-    });
-  }, [activeDate, config.daysToDisplay]);
+    if (isBefore(start, activeDate) && isBefore(activeDate, end)) {
+      // scroll to activeDate, that must be inside the current date interval
+      const startEpoch = start.getTime(); // -> 0 px
+      const activeEpoch = activeDate.getTime(); // -> ? px
+      const endEpoch = end.getTime(); // -> scrollWidth px
+
+      ref.current?.scrollTo({
+        left: (activeEpoch - startEpoch) * ref.current.scrollWidth / (endEpoch - startEpoch),
+        behavior: 'smooth',
+      });
+    } else {
+      // scroll to the current date (there is 1 day in the past)
+      ref.current?.scrollTo({
+        left: ref.current.scrollWidth * (1 / (config.daysToDisplay + 1)),
+        behavior: 'smooth',
+      });
+    }
+  }, [activeDate, config.daysToDisplay, end, start]);
 
   const cols = useMemo(() => {
     return totalDivisions * config.divisionParts;
