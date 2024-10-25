@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {SchedulerContext} from '../components/Scheduler';
 import {HeaderRow, UnAssignedEvents} from '../components/HeaderRow';
 import {Box} from '@mui/material';
@@ -62,6 +62,28 @@ export const TimelineView = () => {
       });
     }
   }, [activeDate, config.daysToDisplay, end, start]);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (el) {
+      const onWheel = (e: WheelEvent) => {
+        if (e.deltaY === 0) return;
+        if (
+          !(el.scrollLeft === 0 && e.deltaY < 0) &&
+          !(el.scrollWidth - el.clientWidth - Math.round(el.scrollLeft) === 0 && 
+              e.deltaY > 0)
+        ) {
+          e.preventDefault();
+        }
+        el.scrollLeft += e.deltaY;
+      };
+
+      el.addEventListener('wheel', onWheel);
+
+      return () => el.removeEventListener('wheel', onWheel);
+    }
+  }, []);
 
   const cols = useMemo(() => {
     return totalDivisions * config.divisionParts;
