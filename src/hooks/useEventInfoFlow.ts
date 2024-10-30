@@ -1,28 +1,62 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
+import {InfoFlowData} from '../types';
 
-const useEventInfoFlow = (scrollRef: HTMLDivElement | null, startTimePx: number | null) => {
-  const [scrollLeft, setScrollLeft] = useState<number>(0);
+const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
+  const flowRef = useRef<HTMLDivElement>();
+
+  const scrollRef = useMemo(() => (
+    infoFlowData?.scrollRef ?? null
+  ), [infoFlowData]);
+
+  const dataGridProps = useMemo(() => (
+    infoFlowData?.dataGridProps ?? null
+  ), [infoFlowData]);
+
+  const config = useMemo(() => (
+    infoFlowData?.config ?? null
+  ), [infoFlowData]);
+
+  const eventStartX = useMemo(() => {
+    if (dataGridProps && config) {
+      return (dataGridProps.x * config.divisionWidth) / config.divisionParts;
+    } return 0;
+  }, [config, dataGridProps]);
+
+  const eventEndX = useMemo(() => {
+    if (dataGridProps && config) {
+      return ((dataGridProps.x + dataGridProps.w) * config.divisionWidth) / config.divisionParts;
+    } return 0;
+  }, [config, dataGridProps]);
 
   useEffect(() => {
     if (scrollRef) {
       const onScroll = (e: Event) => {
-        setScrollLeft(scrollRef.scrollLeft);
+        if (flowRef && flowRef.current && scrollRef.scrollLeft) {
+          const newX = scrollRef.scrollLeft - eventStartX;
+          const {width} = flowRef.current.getBoundingClientRect();
+
+          if ((eventStartX + newX) <= eventStartX) {
+            // Left event box limit
+            flowRef.current.style.transform = '';
+          } else if ((eventStartX + newX + width) >= eventEndX) {
+            // Right event box limit
+            flowRef.current.style.position = 'absolute';
+            flowRef.current.style.right = '0px';
+          } else {
+            // Move info inside event box
+            // ((eventStartX + newX) > eventStartX) && ((eventStartX + newX + width) < eventEndX)
+            flowRef.current.style.transform = `translateX(${newX}px)`;
+          }
+        }
       };
 
       scrollRef.addEventListener('scroll', onScroll);
 
       return () => scrollRef.removeEventListener('scroll', onScroll);
     }
-  }, [scrollRef]);
+  }, [eventEndX, eventStartX, scrollRef]);
 
-  return useMemo(() => {
-    // Move event info to visible part of the event container
-    if (scrollLeft) {
-      return scrollLeft - (startTimePx ?? 0);
-    }
-
-    return 0;
-  }, [scrollLeft, startTimePx]);
+  return flowRef;
 };
 
 export default useEventInfoFlow;

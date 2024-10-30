@@ -204,8 +204,11 @@ export const TimelineView = () => {
                 return (
                   <div key={event.id} data-grid={dataGridProps}>
                     <EventTile key={event.id} event={event}
-                      scrollRef={ref.current}
-                      startTimePx={(dataGridProps.x * config.divisionWidth) / config.divisionParts}
+                      infoFlowData={{
+                        scrollRef: ref.current,
+                        dataGridProps: dataGridProps,
+                        config: config
+                      }}
                     />
                   </div>
                 );
