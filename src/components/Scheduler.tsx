@@ -3,7 +3,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { Box, BoxProps, styled } from '@mui/material';
 import { ScheduleDay, Resource, CalEvent, Config, DivisionDetail, GridCellLayout } from '../types';
-import { addDays, endOfDay, setHours, setMinutes } from 'date-fns';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
 import { defaultConfig, defaultDivisionDetails } from '../constants/defaults';
 import { useDateToDivisions } from '../hooks/useDateToDivisions';
 import { TimelineView } from '../views/TimelineView';
@@ -84,8 +84,17 @@ export const Scheduler = ({
   EventTile?: React.FC<{ event: CalEvent }>;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
-  const firstDay = useMemo(() => addDays(setHours(setMinutes(activeDate, 0), 0), -1), [activeDate]);
-  const lastDay = useMemo(() => endOfDay(addDays(firstDay, config.daysToDisplay)), [firstDay, config.daysToDisplay]);
+
+  const firstDay = useMemo(() => (
+    // TODO Custom time before activeDate, some hours, instead of full days 
+    // (For instance 0.5 means 12 hours before activeDate)
+    startOfDay(addDays(activeDate, -1 * config.previousDaysToDisplay))
+  ), [activeDate, config.previousDaysToDisplay]);
+
+  const lastDay = useMemo(() => (
+    endOfDay(addDays(firstDay, config.daysToDisplay))
+  ), [firstDay, config.daysToDisplay]);
+  
   const days = useMemo(() => {
     const date = new Date(firstDay);
     const days: ScheduleDay[] = [];
@@ -96,8 +105,14 @@ export const Scheduler = ({
     return days;
   }, [dateToDivisions, divisionDetails, firstDay, lastDay]);
 
-  const range = lastDay.getTime() - firstDay.getTime();
-  const totalDivisions = days.reduce((acc, day) => acc + day.divisions.length, 0);
+  const range = useMemo(() => (
+    lastDay.getTime() - firstDay.getTime()
+  ), [firstDay, lastDay]);
+
+  const totalDivisions = useMemo(() => (
+    days.reduce((acc, day) => acc + day.divisions.length, 0)
+  ), [days]);
+
   const daysWithDivisionsOrder: ScheduleDay[] = useMemo(() => {
     const daysWithDivisionsOrder: ScheduleDay[] = [];
     let order = 0;

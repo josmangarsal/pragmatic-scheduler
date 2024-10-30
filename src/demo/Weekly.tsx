@@ -65,6 +65,7 @@ function Weekly() {
           divisionParts: 1,
           daysToDisplay: 30,
           unAssignedRows: 2,
+          previousDaysToDisplay: 1,
         }}
       />
     </>

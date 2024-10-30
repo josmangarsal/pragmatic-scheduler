@@ -7,6 +7,7 @@ export const defaultConfig: Config = {
   unAssignedRows: 2,
   divisionParts: 4,
   daysToDisplay: 3,
+  previousDaysToDisplay: 1,
 };
 
 export const defaultDivisionDetails: DivisionDetail[] = [

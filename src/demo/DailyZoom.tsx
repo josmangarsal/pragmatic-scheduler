@@ -14,7 +14,7 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const {currentInterval, zoomControl} = useSchedulerZoom();
+  const {currentInterval, zoomControl, config} = useSchedulerZoom();
   const {divisionDetails} = useDivisionDetailsGenerator(currentInterval)
 
   const handleEventChange = (event: CalEvent) => {
@@ -44,6 +44,7 @@ function DailyZoom() {
         events={events}
         divisionDetails={divisionDetails}
         onEventChange={handleEventChange}
+        config={config}
       />
     </>
   );
