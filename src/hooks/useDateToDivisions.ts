@@ -1,5 +1,5 @@
 import { DivisionDetail, ScheduleDay } from '../types';
-import { setHours, startOfDay } from 'date-fns';
+import { setHours, setMinutes, startOfDay } from 'date-fns';
 
 export const useDateToDivisions = () => {
   const dateToDivisions = (date: Date, divisionDetails: DivisionDetail[]): ScheduleDay => {
@@ -7,10 +7,23 @@ export const useDateToDivisions = () => {
     return {
       date: startOfDayDate,
       divisions: divisionDetails.map((divisionDetail) => {
+        // Move hour with decimal to hours and minutes
         return {
           name: divisionDetail.name,
-          startTime: setHours(startOfDayDate, divisionDetail.startHour),
-          endTime: setHours(startOfDayDate, divisionDetail.endHour),
+          startTime: setMinutes(
+            setHours(
+              startOfDayDate,
+              Math.trunc(divisionDetail.startHour)
+            ),
+            (divisionDetail.startHour % 1) * 60
+          ),
+          endTime: setMinutes(
+            setHours(
+              startOfDayDate,
+              Math.trunc(divisionDetail.endHour)
+            ),
+            (divisionDetail.endHour % 1) * 60
+          ),
         };
       }),
     };
