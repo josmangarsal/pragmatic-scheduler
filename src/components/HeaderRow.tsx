@@ -108,7 +108,7 @@ export const UnAssignedEvents = ({ onDragStart }: { onDragStart: (event: CalEven
             style={{ top, height, left, width }}
             onDragStart={(e) => handleDragStart(e, event)}
           >
-            <EventTile event={event} />
+            <EventTile event={event} scrollRef={null} startTimePx={null} />
           </Container>
         );
       })}
