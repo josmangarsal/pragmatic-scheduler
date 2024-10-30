@@ -1,4 +1,5 @@
 import GridLayout from 'react-grid-layout';
+
 export type ScheduleDay = {
   date: Date;
   divisions: Division[];
@@ -53,3 +54,9 @@ export type IntervalOption = {
   label: string;
   value: number;
 };
+
+export type InfoFlowData = {
+  scrollRef: HTMLDivElement | null,
+  dataGridProps: GridLayout.Layout,
+  config: Config
+}
