@@ -71,8 +71,8 @@ export const TimelineView = () => {
         if (e.deltaY === 0) return;
         if (
           !(el.scrollLeft === 0 && e.deltaY < 0) &&
-          !(el.scrollWidth - el.clientWidth - Math.round(el.scrollLeft) === 0 && 
-              e.deltaY > 0)
+          !(el.scrollWidth - el.clientWidth - Math.round(el.scrollLeft) === 0 &&
+            e.deltaY > 0)
         ) {
           e.preventDefault();
         }
@@ -203,7 +203,10 @@ export const TimelineView = () => {
                 const dataGridProps = calcEventPosition(event);
                 return (
                   <div key={event.id} data-grid={dataGridProps}>
-                    <EventTile key={event.id} event={event} />
+                    <EventTile key={event.id} event={event}
+                      scrollRef={ref.current}
+                      startTimePx={(dataGridProps.x * config.divisionWidth) / config.divisionParts}
+                    />
                   </div>
                 );
               })}
