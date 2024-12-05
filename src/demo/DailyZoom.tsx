@@ -6,7 +6,8 @@ import {SchedulerDateControls} from '../components/SchedulerDateControls';
 import {events as rawEvents, resources} from '../data/daily';
 import {startOfToday, setHours} from 'date-fns';
 import useDivisionDetailsGenerator from '../hooks/useDivisionDetailsGenerator';
-import useSchedulerZoom from '../hooks/useSchedulerZoom';
+import useSchedulerViewConfig from '../hooks/useSchedulerViewConfig';
+import useSchedulerViewControls from '../hooks/useSchedulerViewControls';
 
 function DailyZoom() {
   // Start position
@@ -14,7 +15,8 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const {currentInterval, zoomControl, config} = useSchedulerZoom();
+  const {controls, ...viewConfigValues} = useSchedulerViewControls();
+  const {currentInterval, config} = useSchedulerViewConfig(viewConfigValues);
   const {divisionDetails} = useDivisionDetailsGenerator(currentInterval)
 
   const handleEventChange = (event: CalEvent) => {
@@ -35,10 +37,10 @@ function DailyZoom() {
         <SchedulerDateControls activeDate={activeDate} setActiveDate={setActiveDate} />
       </Box>
       <Box mb={2} display="flex" justifyContent="center">
-        {zoomControl}
+        {controls}
       </Box>
       <Scheduler
-        key={currentInterval} // force render scheduler on update view interval
+        key={JSON.stringify(config)} // force render scheduler on update view interval
         activeDate={activeDate}
         resources={resources}
         events={events}

@@ -40,7 +40,7 @@ const HeaderCell = ({ day }: { day: ScheduleDay }) => {
   return (
     <BorderedBox flexDirection="column" minWidth={dayWidth} maxWidth={dayWidth} overflow="hidden">
       <Typography variant="tableHeader" color={isActive ? 'secondary.main' : 'text.disabled'} p={0.75}>
-        {format(day.date, 'EEE dd/MM/yyyy')}
+        {format(day.date, 'EEE dd/MM/yyyy')} {/* TODO Format according to locale */}
       </Typography>
       <Box display="flex">
         {day.divisions.map((division, index) => (

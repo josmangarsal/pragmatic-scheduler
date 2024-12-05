@@ -76,7 +76,7 @@ export const TimelineView = () => {
         ) {
           e.preventDefault();
         }
-        el.scrollLeft += e.deltaY;
+        el.scrollLeft += e.deltaY * 0.25;
       };
 
       el.addEventListener('wheel', onWheel);

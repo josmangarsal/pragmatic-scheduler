@@ -12,10 +12,15 @@ const useDivisionDetailsGenerator = intervalIncrement => {
       const hours = Math.trunc(startHour).toString().padStart(2, '0');
       const minutes = ((startHour % 1) * 60).toString().padStart(2, '0');
 
+      let endHour = startHour + intervalIncrement;
+      if (endHour > 24) {
+        endHour = 24;
+      }
+
       divisions.push({
         name: `${hours}:${minutes}`,
         startHour: startHour,
-        endHour: startHour + intervalIncrement
+        endHour: endHour
       });
 
       startHour += intervalIncrement;

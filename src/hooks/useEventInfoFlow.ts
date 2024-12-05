@@ -31,7 +31,7 @@ const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
   useEffect(() => {
     if (scrollRef) {
       const onScroll = (e: Event) => {
-        if (flowRef && flowRef.current && scrollRef.scrollLeft) {
+        if (flowRef?.current && scrollRef.scrollLeft) {
           const newX = scrollRef.scrollLeft - eventStartX;
           const {width} = flowRef.current.getBoundingClientRect();
 
@@ -40,7 +40,8 @@ const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
             flowRef.current.style.transform = '';
           } else if ((eventStartX + newX + width) >= eventEndX) {
             // Right event box limit
-            flowRef.current.style.position = 'absolute';
+            flowRef.current.style.display = 'grid';
+            flowRef.current.style.width = 'fit-contents';
             flowRef.current.style.right = '0px';
           } else {
             // Move info inside event box
