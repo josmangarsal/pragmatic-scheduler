@@ -15,9 +15,9 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const {controls, ...viewConfigValues} = useSchedulerViewControls();
+  const {controls, extendFrom, extendTo, ...viewConfigValues} = useSchedulerViewControls(activeDate);
   const {currentInterval, config} = useSchedulerViewConfig(viewConfigValues);
-  const {divisionDetails} = useDivisionDetailsGenerator(currentInterval)
+  const {divisionDetails} = useDivisionDetailsGenerator(currentInterval);
 
   const handleEventChange = (event: CalEvent) => {
     setEvents((prevEvents) => {
@@ -40,13 +40,15 @@ function DailyZoom() {
         {controls}
       </Box>
       <Scheduler
-        key={JSON.stringify(config)} // force render scheduler on update view interval
+        key={`${currentInterval}`} // force re-render scheduler on update view interval
         activeDate={activeDate}
         resources={resources}
         events={events}
         divisionDetails={divisionDetails}
         onEventChange={handleEventChange}
         config={config}
+        extendFrom={extendFrom} // don't pass to hide extend button
+        extendTo={extendTo}
       />
     </>
   );

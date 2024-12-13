@@ -21,16 +21,16 @@ const Sidebar = () => {
         onClick: () => navigate('/daily'),
       },
       {
-        text: 'DailyZoom',
-        key: 'dailyZoom',
-        icon: <ViewDayIcon />,
-        onClick: () => navigate('/dailyZoom'),
-      },
-      {
         text: 'Day2',
         key: 'daily2',
         icon: <ViewDayIcon />,
         onClick: () => navigate('/daily2'),
+      },
+      {
+        text: 'DailyZoom',
+        key: 'dailyZoom',
+        icon: <ViewDayIcon />,
+        onClick: () => navigate('/dailyZoom'),
       },
       {
         text: 'Week',

@@ -40,6 +40,8 @@ export const SchedulerContext = React.createContext<{
   UnAssignedBoxProps?: BoxProps;
   GridCell?: React.FC<{ layout: GridCellLayout }>;
   EventTile?: React.FC<{ event: CalEvent }>;
+  extendFrom?: () => void;
+  extendTo?: () => void;
 }>({
   activeDate: new Date(),
   days: [],
@@ -68,6 +70,8 @@ export const Scheduler = ({
   UnAssignedBoxProps,
   GridCell,
   EventTile,
+  extendFrom,
+  extendTo,
 }: {
   activeDate: Date;
   divisionDetails?: DivisionDetail[];
@@ -82,13 +86,15 @@ export const Scheduler = ({
   UnAssignedBoxProps?: BoxProps;
   GridCell?: React.FC<{ layout: GridCellLayout }>;
   EventTile?: React.FC<{ event: CalEvent }>;
+  extendFrom?: () => void;
+  extendTo?: () => void;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
 
   const firstDay = useMemo(() => (
     // TODO Custom time before activeDate, some hours, instead of full days 
     // (For instance 0.5 means 12 hours before activeDate)
-    startOfDay(addDays(activeDate, -1 * config.previousDaysToDisplay))
+    startOfDay(addDays(activeDate, -1 * (config.previousDaysToDisplay ?? 0)))
   ), [activeDate, config.previousDaysToDisplay]);
 
   const lastDay = useMemo(() => (
@@ -148,6 +154,8 @@ export const Scheduler = ({
         UnAssignedBoxProps: UnAssignedBoxProps,
         GridCell: GridCell,
         EventTile: EventTile,
+        extendFrom: extendFrom,
+        extendTo: extendTo,
       }}
     >
       <Container>

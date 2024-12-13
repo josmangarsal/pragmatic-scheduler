@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import {DatePicker} from '@mui/x-date-pickers';
 import {addDays, startOfToday} from 'date-fns';
@@ -12,23 +12,50 @@ const intervalOptions: IntervalOption[] = [
   {label: '1 day', value: 24}
 ];
 
-const useSchedulerViewControls = () => {
+const useSchedulerViewControls = activeDate => {
   const [fromDate, setFromDate] = useState<Date>(startOfToday());
   const [toDate, setToDate] = useState<Date>(addDays(startOfToday(), 2));
   
-  const [currentView, setCurrentView] = useState<string>('3d');
+  const [currentDaysToDisplay, setCurrentDaysToDisplay] = useState<number>(3);
   const [currentInterval, setCurrentInterval] = useState<number>(2);
   const [currentPrevDays, setCurrentPrevDays] = useState<number>(0);
 
+  // Update view according from/to dates
   useEffect(() => {
-    // Update view according from/to dates
-    const today = new Date();
-    const prevDays = today.getDate() - fromDate.getDate();
-    const nextDays = toDate.getDate() - today.getDate() + 1; // +1 to include toDate
+    setCurrentDaysToDisplay(toDate.getDate() - activeDate.getDate());
+    setCurrentPrevDays(activeDate.getDate() - fromDate.getDate());
+  }, [activeDate, fromDate, toDate]);
 
-    setCurrentView(`${nextDays}d`);
-    setCurrentPrevDays(prevDays);
-  }, [fromDate, toDate]);
+  // Update fromDate and toDate when activeDate changes
+  const prevActiveDate = useRef<Date | null>(null);
+  useEffect(() => {
+    if (!prevActiveDate.current) {
+      prevActiveDate.current = activeDate;
+      return;
+    }
+
+    if (activeDate.getDate() > prevActiveDate.current.getDate()) {
+      const activeDateShift = activeDate.getDate() - prevActiveDate.current.getDate();
+      setFromDate(addDays(fromDate, activeDateShift));
+      setToDate(addDays(toDate, activeDateShift));
+
+      prevActiveDate.current = activeDate;
+    } else if (activeDate.getDate() < prevActiveDate.current.getDate()) {
+      const activeDateShift = prevActiveDate.current.getDate() - activeDate.getDate();
+      setFromDate(addDays(fromDate, -activeDateShift));
+      setToDate(addDays(toDate, -activeDateShift));
+
+      prevActiveDate.current = activeDate;
+    }
+  }, [activeDate, fromDate, toDate]);
+
+  const extendFrom = useCallback(() => {
+    setFromDate(addDays(fromDate, -1));
+  }, [fromDate]);
+
+  const extendTo = useCallback(() => {
+    setToDate(addDays(toDate, 1));
+  }, [toDate]);
 
   const handleChangeInterval = useCallback(event => {
     setCurrentInterval(event.target.value);
@@ -94,9 +121,11 @@ const useSchedulerViewControls = () => {
 
   return {
     controls: controls,
-    view: currentView,
+    daysToDisplay: currentDaysToDisplay,
     interval: currentInterval,
-    prevDays: currentPrevDays
+    prevDays: currentPrevDays,
+    extendFrom: extendFrom,
+    extendTo: extendTo,
   }
 };
 

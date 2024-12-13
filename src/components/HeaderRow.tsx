@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SchedulerContext } from './Scheduler';
-import { Box, Typography, styled } from '@mui/material';
+import { Box, IconButton, Typography, styled } from '@mui/material';
 import { CalEvent, ScheduleDay } from '../types';
 import { format, isSameDay } from 'date-fns';
 import { BorderedBox } from '../layout/BorderedBox';
@@ -32,15 +32,50 @@ const useWidthPlusSpacing = () => {
 };
 
 const HeaderCell = ({ day }: { day: ScheduleDay }) => {
-  const { activeDate } = useContext(SchedulerContext);
+  const { activeDate, days, extendFrom, extendTo } = useContext(SchedulerContext);
   const isActive = isSameDay(day.date, activeDate);
   const width = useWidthPlusSpacing();
   const dayWidth = width * day.divisions.length;
 
+  const isFirstDay = isSameDay(day.date, days[0].date);
+  const isLastDay = isSameDay(day.date, days[days.length - 1].date);
+
   return (
-    <BorderedBox flexDirection="column" minWidth={dayWidth} maxWidth={dayWidth} overflow="hidden">
+    <BorderedBox flexDirection="column" minWidth={dayWidth} maxWidth={dayWidth} overflow="hidden"
+    style={{ position: 'relative', overflow: 'visible' }}>
+      {/* (First day) Add button to load prev day */}
+      {isFirstDay && extendFrom &&
+        <div style={{
+          position: 'absolute',
+          top: '-45px',
+          backgroundColor: 'firebrick',
+          border: '3px solid black',
+          borderRadius: '80% 0 55% 50% / 55% 0 80% 50%',
+          transform: 'rotate(-200deg)'
+        }}>
+          <IconButton onClick={extendFrom}>
+            +
+          </IconButton>
+        </div>
+      }
+      {/* (Last day) Add button to load next day */}
+      {isLastDay && extendTo &&
+        <div style={{
+          position: 'absolute',
+          top: '-45px',
+          right: '0',
+          backgroundColor: 'firebrick',
+          border: '3px solid black',
+          borderRadius: '80% 0 55% 50% / 55% 0 80% 50%',
+          transform: 'rotate(-200deg)'
+        }}>
+          <IconButton onClick={extendTo}>
+            +
+          </IconButton>
+        </div>
+      }
       <Typography variant="tableHeader" color={isActive ? 'secondary.main' : 'text.disabled'} p={0.75}>
-        {format(day.date, 'EEE dd/MM/yyyy')} {/* TODO Format according to locale */}
+        {format(day.date, 'EEE P')}
       </Typography>
       <Box display="flex">
         {day.divisions.map((division, index) => (
