@@ -60,3 +60,10 @@ export type InfoFlowData = {
   dataGridProps: GridLayout.Layout,
   config: Config
 }
+
+export type SchedulerViewControlsProps = {
+  prevDays?: number;
+  startDate?: Date;
+  endDate?: Date;
+  interval?: number;
+}

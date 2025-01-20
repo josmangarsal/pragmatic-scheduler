@@ -48,8 +48,18 @@ export const TimelineView = () => {
   );
 
   const prevActiveDate = useRef<Date | null>();
+  const prevStartDate = useRef<Date | null>();
   const prevEndDate = useRef<Date | null>();
   useEffect(() => {
+    // Scroll to start on expand end date
+    if (prevStartDate.current && prevStartDate.current?.getTime() !== start.getTime()) {
+      prevStartDate.current = start;
+      ref.current?.scrollTo({
+        left: 0,
+        behavior: 'smooth',
+      });
+      return;
+    }
     // Scroll to end on expand end date
     if (prevEndDate.current && prevEndDate.current?.getTime() !== end.getTime()) {
       prevEndDate.current = end;
@@ -60,6 +70,7 @@ export const TimelineView = () => {
       return;
     }
     setTimeout(() => {
+      prevStartDate.current = start;
       prevEndDate.current = end;
     }, 100);
 
