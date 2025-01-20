@@ -31,9 +31,11 @@ export const SchedulerDateControls = ({
     setOpen(true);
   };
   const handleGoForward = () => {
+    // if dates are in use, extend them if the move is greater than to
     setActiveDate((d) => addDays(d, moveByDays));
   };
   const handleGoBack = () => {
+    // if dates are in use, extend them if the move is greater than from
     setActiveDate((d) => addDays(d, -1 * moveByDays));
   };
 

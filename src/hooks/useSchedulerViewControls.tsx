@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import React, {useState, useEffect, useCallback, useMemo, useRef} from 'react';
+import {FormControl, InputLabel, Select, MenuItem} from '@mui/material';
 import {DatePicker} from '@mui/x-date-pickers';
 import {addDays, startOfToday} from 'date-fns';
 import {IntervalOption} from '../types';
@@ -12,10 +12,11 @@ const intervalOptions: IntervalOption[] = [
   {label: '1 day', value: 24}
 ];
 
-const useSchedulerViewControls = activeDate => {
+const useSchedulerViewControls = (activeDate, startDate = null, endDate = null) => {
+  // TODO Allow to set from/to dates instead of use controls
   const [fromDate, setFromDate] = useState<Date>(startOfToday());
   const [toDate, setToDate] = useState<Date>(addDays(startOfToday(), 2));
-  
+
   const [currentDaysToDisplay, setCurrentDaysToDisplay] = useState<number>(3);
   const [currentInterval, setCurrentInterval] = useState<number>(2);
   const [currentPrevDays, setCurrentPrevDays] = useState<number>(0);
@@ -91,7 +92,7 @@ const useSchedulerViewControls = activeDate => {
           onChange={handleChangeFrom}
         />
       </FormControl>
-      
+
       <FormControl sx={{m: 1, minWidth: 120}}>
         <DatePicker
           label='To'

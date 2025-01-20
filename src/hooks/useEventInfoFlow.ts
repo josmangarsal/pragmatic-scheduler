@@ -31,7 +31,7 @@ const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
   useEffect(() => {
     if (scrollRef) {
       const onScroll = (e: Event) => {
-        if (flowRef?.current && scrollRef.scrollLeft) {
+        if (flowRef?.current) {
           const newX = scrollRef.scrollLeft - eventStartX;
           const {width} = flowRef.current.getBoundingClientRect();
 
@@ -56,6 +56,15 @@ const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
       return () => scrollRef.removeEventListener('scroll', onScroll);
     }
   }, [eventEndX, eventStartX, scrollRef]);
+
+  useEffect(() => {
+    if (flowRef?.current) {
+      // Init Event position
+      flowRef.current.style.display = 'grid';
+      flowRef.current.style.width = 'fit-contents';
+      flowRef.current.style.right = '0px';
+    }
+  }, []);
 
   return flowRef;
 };

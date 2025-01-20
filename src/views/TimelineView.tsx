@@ -13,6 +13,7 @@ import {useLayoutToCalEvent} from '../hooks/useLayoutToCalEvent';
 import {useCalcGridPositions} from '../hooks/useCalcGridPositions';
 import {CalEvent} from '../types';
 import {isBefore} from 'date-fns';
+import {dateToPosition} from '../helpers/datePositionHelper';
 
 export const TimelineView = () => {
   const {
@@ -24,11 +25,14 @@ export const TimelineView = () => {
     calendarBounds: {totalDivisions, start, end},
     onEventChange,
   } = useContext(SchedulerContext);
+
   const ref = useRef<HTMLDivElement | null>(null);
+
   const calcEventPosition = useCalcEventPosition();
   const layoutToCalEvent = useLayoutToCalEvent();
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const gridLayouts = useCalcGridPositions();
+
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const [dragCalEvent, setDragCalEvent] = useState<CalEvent | undefined>();
   const [droppingItem, setDroppingItem] = useState<GridLayout.Layout>({i: 'droppedItem', w: 4, h: 1, x: 0, y: 0});
@@ -43,15 +47,30 @@ export const TimelineView = () => {
     [gridLayouts],
   );
 
+  const prevActiveDate = useRef<Date | null>();
+  const prevEndDate = useRef<Date | null>();
   useEffect(() => {
+    // Scroll to end on expand end date
+    if (prevEndDate.current && prevEndDate.current?.getTime() !== end.getTime()) {
+      prevEndDate.current = end;
+      ref.current?.scrollTo({
+        left: ref.current.scrollWidth,
+        behavior: 'smooth',
+      });
+      return;
+    }
+    setTimeout(() => {
+      prevEndDate.current = end;
+    }, 100);
+
+    // Don't scroll if activeDate has not changed
+    if (prevActiveDate.current?.getTime() === activeDate.getTime()) return;
+    prevActiveDate.current = activeDate;
+
     if (isBefore(start, activeDate) && isBefore(activeDate, end)) {
       // scroll to activeDate, that must be inside the current date interval
-      const startEpoch = start.getTime(); // -> 0 px
-      const activeEpoch = activeDate.getTime(); // -> ? px
-      const endEpoch = end.getTime(); // -> scrollWidth px
-
       ref.current?.scrollTo({
-        left: (activeEpoch - startEpoch) * ref.current.scrollWidth / (endEpoch - startEpoch),
+        left: dateToPosition(activeDate, start, end, ref.current.scrollWidth),
         behavior: 'smooth',
       });
     } else {
