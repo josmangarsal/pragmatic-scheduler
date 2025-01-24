@@ -3,5 +3,5 @@ export const dateToPosition = (currentDate: Date, startDate: Date, endDate: Date
   const currentEpoch = currentDate.getTime(); // -> ? px
   const endEpoch = endDate.getTime(); // -> endWidth px
 
-  return (currentEpoch - startEpoch) * endWidth / (endEpoch - startEpoch);
+  return ((currentEpoch - startEpoch) * endWidth) / (endEpoch - startEpoch);
 };

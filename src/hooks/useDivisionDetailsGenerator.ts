@@ -1,5 +1,5 @@
-import {useMemo} from 'react';
-import {DivisionDetail} from '../types';
+import { useMemo } from 'react';
+import { DivisionDetail } from '../types';
 
 export const useDivisionDetailsGenerator = (intervalIncrement: number) => {
   const divisionDetails = useMemo(() => {
@@ -20,7 +20,7 @@ export const useDivisionDetailsGenerator = (intervalIncrement: number) => {
       divisions.push({
         name: `${hours}:${minutes}`,
         startHour: startHour,
-        endHour: endHour
+        endHour: endHour,
       });
 
       startHour += intervalIncrement;
@@ -30,6 +30,6 @@ export const useDivisionDetailsGenerator = (intervalIncrement: number) => {
   }, [intervalIncrement]);
 
   return {
-    divisionDetails
+    divisionDetails,
   };
 };

@@ -11,18 +11,12 @@ export const useDateToDivisions = () => {
         return {
           name: divisionDetail.name,
           startTime: setMinutes(
-            setHours(
-              startOfDayDate,
-              Math.trunc(divisionDetail.startHour)
-            ),
-            (divisionDetail.startHour % 1) * 60
+            setHours(startOfDayDate, Math.trunc(divisionDetail.startHour)),
+            (divisionDetail.startHour % 1) * 60,
           ),
           endTime: setMinutes(
-            setHours(
-              startOfDayDate,
-              Math.trunc(divisionDetail.endHour)
-            ),
-            (divisionDetail.endHour % 1) * 60
+            setHours(startOfDayDate, Math.trunc(divisionDetail.endHour)),
+            (divisionDetail.endHour % 1) * 60,
           ),
         };
       }),

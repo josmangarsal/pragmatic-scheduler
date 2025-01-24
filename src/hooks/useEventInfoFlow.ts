@@ -4,41 +4,37 @@ import {InfoFlowData} from '../types';
 export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
   const flowRef = useRef<HTMLDivElement>();
 
-  const scrollRef = useMemo(() => (
-    infoFlowData?.scrollRef ?? null
-  ), [infoFlowData]);
+  const scrollRef = useMemo(() => infoFlowData?.scrollRef ?? null, [infoFlowData]);
 
-  const dataGridProps = useMemo(() => (
-    infoFlowData?.dataGridProps ?? null
-  ), [infoFlowData]);
+  const dataGridProps = useMemo(() => infoFlowData?.dataGridProps ?? null, [infoFlowData]);
 
-  const config = useMemo(() => (
-    infoFlowData?.config ?? null
-  ), [infoFlowData]);
+  const config = useMemo(() => infoFlowData?.config ?? null, [infoFlowData]);
 
   const eventStartX = useMemo(() => {
     if (dataGridProps && config) {
       return (dataGridProps.x * config.divisionWidth) / config.divisionParts;
-    } return 0;
+    }
+    return 0;
   }, [config, dataGridProps]);
 
   const eventEndX = useMemo(() => {
     if (dataGridProps && config) {
       return ((dataGridProps.x + dataGridProps.w) * config.divisionWidth) / config.divisionParts;
-    } return 0;
+    }
+    return 0;
   }, [config, dataGridProps]);
 
   useEffect(() => {
     if (scrollRef) {
-      const onScroll = (e: Event) => {
+      const onScroll = () => {
         if (flowRef?.current) {
           const newX = scrollRef.scrollLeft - eventStartX;
           const {width} = flowRef.current.getBoundingClientRect();
 
-          if ((eventStartX + newX) <= eventStartX) {
+          if (eventStartX + newX <= eventStartX) {
             // Left event box limit
             flowRef.current.style.transform = '';
-          } else if ((eventStartX + newX + width) >= eventEndX) {
+          } else if (eventStartX + newX + width >= eventEndX) {
             // Right event box limit
             flowRef.current.style.display = 'grid';
             flowRef.current.style.width = 'fit-contents';
