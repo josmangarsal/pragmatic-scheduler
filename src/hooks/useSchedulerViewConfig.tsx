@@ -2,7 +2,7 @@ import {useMemo} from 'react';
 import {Config} from '../types';
 import {defaultConfig} from '../constants/defaults';
 
-const useSchedulerViewConfig = ({daysToDisplay = 3, interval = 2, prevDays = 0}) => {
+export const useSchedulerViewConfig = ({daysToDisplay = 3, interval = 2, prevDays = 0}) => {
   const config: Config = useMemo(() => {
     const currentConfig = {...defaultConfig};
 
@@ -36,5 +36,3 @@ const useSchedulerViewConfig = ({daysToDisplay = 3, interval = 2, prevDays = 0})
     config: config
   };
 };
-
-export default useSchedulerViewConfig;

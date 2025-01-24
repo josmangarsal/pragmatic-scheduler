@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {DivisionDetail} from '../types';
 
-const useDivisionDetailsGenerator = intervalIncrement => {
+export const useDivisionDetailsGenerator = (intervalIncrement: number) => {
   const divisionDetails = useMemo(() => {
     // Go from 0 to 24 adding an interval increment
     const divisions: DivisionDetail[] = [];
@@ -33,5 +33,3 @@ const useDivisionDetailsGenerator = intervalIncrement => {
     divisionDetails
   };
 };
-
-export default useDivisionDetailsGenerator;

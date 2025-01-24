@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef} from 'react';
 import {InfoFlowData} from '../types';
 
-const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
+export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
   const flowRef = useRef<HTMLDivElement>();
 
   const scrollRef = useMemo(() => (
@@ -68,5 +68,3 @@ const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
 
   return flowRef;
 };
-
-export default useEventInfoFlow;

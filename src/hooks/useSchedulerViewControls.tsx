@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useCallback, useMemo, useRef} from 'react';
-import {FormControl, InputLabel, Select, MenuItem} from '@mui/material';
+import {useState, useEffect, useCallback, useMemo, useRef} from 'react';
+import {FormControl, InputLabel, Select, MenuItem, SelectChangeEvent} from '@mui/material';
 import {DatePicker} from '@mui/x-date-pickers';
 import {addDays, startOfToday} from 'date-fns';
 import {IntervalOption, SchedulerViewControlsProps} from '../types';
@@ -12,7 +12,7 @@ const intervalOptions: IntervalOption[] = [
   {label: '1 day', value: 24}
 ];
 
-const useSchedulerViewControls = (
+export const useSchedulerViewControls = (
   initialDate: Date,
   {
     startDate: startDateProp,
@@ -64,8 +64,8 @@ const useSchedulerViewControls = (
     setEndDate(addDays(endDate, 1));
   }, [endDate]);
 
-  const handleChangeInterval = useCallback(event => {
-    setCurrentInterval(event.target.value);
+  const handleChangeInterval = useCallback((event: SelectChangeEvent) => {
+    setCurrentInterval(Number(event.target.value));
   }, []);
 
   const handleChangeFrom = useCallback((date: Date | null) => {
@@ -119,7 +119,7 @@ const useSchedulerViewControls = (
             <Select
               labelId='interval-select-label'
               label='Interval'
-              value={currentInterval}
+              value={`${currentInterval}`}
               onChange={handleChangeInterval}
             >
               {
@@ -144,5 +144,3 @@ const useSchedulerViewControls = (
     extendTo: extendTo,
   }
 };
-
-export default useSchedulerViewControls;

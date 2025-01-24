@@ -5,9 +5,7 @@ import {CalEvent} from '../types';
 import {SchedulerDateControls} from '../components/SchedulerDateControls';
 import {events as rawEvents, resources} from '../data/daily';
 import {startOfToday, setHours} from 'date-fns';
-import useDivisionDetailsGenerator from '../hooks/useDivisionDetailsGenerator';
-import useSchedulerViewConfig from '../hooks/useSchedulerViewConfig';
-import useSchedulerViewControls from '../hooks/useSchedulerViewControls';
+import {useSchedulerIntervals} from '../hooks/useSchedulerIntervals';
 
 function DailyZoom() {
   // Start position
@@ -15,9 +13,11 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const {controls, extendFrom, extendTo, ...viewConfigValues} = useSchedulerViewControls(activeDate);
-  const {currentInterval, config} = useSchedulerViewConfig(viewConfigValues);
-  const {divisionDetails} = useDivisionDetailsGenerator(currentInterval);
+  const {
+    controls, currentInterval,
+    extendFrom, extendTo,
+    config, divisionDetails
+  } = useSchedulerIntervals(activeDate);
 
   const handleEventChange = (event: CalEvent) => {
     setEvents((prevEvents) => {

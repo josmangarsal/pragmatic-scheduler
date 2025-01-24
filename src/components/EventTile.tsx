@@ -3,7 +3,7 @@ import {Box, Typography, TypographyProps, styled} from '@mui/material';
 import {CalEvent, InfoFlowData} from '../types';
 import {format} from 'date-fns';
 import {SchedulerContext} from './Scheduler';
-import useEventInfoFlow from '../hooks/useEventInfoFlow';
+import {useEventInfoFlow} from '../hooks/useEventInfoFlow';
 
 const Container = styled(Box)(({theme}) => ({
   borderRadius: theme.spacing(1),
