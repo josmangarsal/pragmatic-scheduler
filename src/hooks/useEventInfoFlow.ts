@@ -1,5 +1,5 @@
-import {useEffect, useMemo, useRef} from 'react';
-import {InfoFlowData} from '../types';
+import { useEffect, useMemo, useRef } from 'react';
+import { InfoFlowData } from '../types';
 
 export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
   const flowRef = useRef<HTMLDivElement>();
@@ -29,7 +29,7 @@ export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
       const onScroll = () => {
         if (flowRef?.current) {
           const newX = scrollRef.scrollLeft - eventStartX;
-          const {width} = flowRef.current.getBoundingClientRect();
+          const { width } = flowRef.current.getBoundingClientRect();
 
           if (eventStartX + newX <= eventStartX) {
             // Left event box limit
