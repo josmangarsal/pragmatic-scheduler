@@ -1,7 +1,7 @@
 import {useState, useEffect, useCallback, useMemo, useRef} from 'react';
 import {FormControl, InputLabel, Select, MenuItem, SelectChangeEvent} from '@mui/material';
 import {DatePicker} from '@mui/x-date-pickers';
-import {addDays, startOfToday} from 'date-fns';
+import {addDays, differenceInDays, startOfToday} from 'date-fns';
 import {IntervalOption, SchedulerViewControlsProps} from '../types';
 
 const intervalOptions: IntervalOption[] = [
@@ -29,8 +29,8 @@ export const useSchedulerViewControls = (
 
   // Update view according start/end dates
   useEffect(() => {
-    setCurrentDaysToDisplay(endDate.getDate() - initialDate.getDate());
-    setCurrentPrevDays(initialDate.getDate() - startDate.getDate());
+    setCurrentDaysToDisplay(differenceInDays(endDate, initialDate));
+    setCurrentPrevDays(differenceInDays(initialDate, startDate));
   }, [initialDate, startDate, endDate]);
 
   // Update startDate and endDate when initialDate changes
@@ -41,14 +41,14 @@ export const useSchedulerViewControls = (
       return;
     }
 
-    if (initialDate.getDate() > prevInitialDate.current.getDate()) {
-      const initialDateShift = initialDate.getDate() - prevInitialDate.current.getDate();
+    if (initialDate.getTime() > prevInitialDate.current.getTime()) {
+      const initialDateShift = differenceInDays(initialDate, prevInitialDate.current);
       setStartDate(addDays(startDate, initialDateShift));
       setEndDate(addDays(endDate, initialDateShift));
 
       prevInitialDate.current = initialDate;
-    } else if (initialDate.getDate() < prevInitialDate.current.getDate()) {
-      const initialDateShift = prevInitialDate.current.getDate() - initialDate.getDate();
+    } else if (initialDate.getTime() < prevInitialDate.current.getTime()) {
+      const initialDateShift = differenceInDays(prevInitialDate.current, initialDate);
       setStartDate(addDays(startDate, -initialDateShift));
       setEndDate(addDays(endDate, -initialDateShift));
 
