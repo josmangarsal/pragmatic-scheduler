@@ -24,7 +24,7 @@ export const useSchedulerViewControls = (
   const [endDate, setEndDate] = useState<Date>(endDateProp ?? addDays(startOfToday(), 2));
 
   const [currentDaysToDisplay, setCurrentDaysToDisplay] = useState<number>(3);
-  const [currentInterval, setCurrentInterval] = useState<number>(intervalProp ?? 2);
+  const [currentInterval, setCurrentInterval] = useState<number>(2);
   const [currentPrevDays, setCurrentPrevDays] = useState<number>(0);
 
   // Update view according start/end dates
@@ -138,7 +138,7 @@ export const useSchedulerViewControls = (
   return {
     controls: controls,
     daysToDisplay: currentDaysToDisplay,
-    interval: currentInterval,
+    interval: intervalProp ?? currentInterval,
     prevDays: currentPrevDays,
     extendFrom: extendFrom,
     extendTo: extendTo,

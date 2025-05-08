@@ -1,6 +1,6 @@
 {
-  "name": "pragmatic-scheduler",
-  "version": "1.3.0",
+  "name": "@josmangarsal/pragmatic-scheduler",
+  "version": "1.3.2",
   "description": "React resource scheduler",
   "main": "dist/pragmatic-scheduler.js",
   "types": "dist/pragmatic-scheduler.d.ts",
@@ -8,6 +8,7 @@
     "dist/**/*"
   ],
   "scripts": {
+    "start": "set PORT=4000 && react-scripts start",
     "dev:client": "PUBLIC_URL=/ react-scripts start",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
