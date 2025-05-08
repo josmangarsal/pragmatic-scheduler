@@ -15,13 +15,23 @@ const intervalOptions: IntervalOption[] = [
 export const useSchedulerViewControls = (
   initialDate: Date,
   {
-    startDate: startDateProp,
-    endDate: endDateProp,
+    startDate: startDateProp, setStartDate: setStartDateProp,
+    endDate: endDateProp, setEndDate: setEndDateProp,
     interval: intervalProp
   }: SchedulerViewControlsProps = {}
 ) => {
-  const [startDate, setStartDate] = useState<Date>(startDateProp ?? startOfToday());
-  const [endDate, setEndDate] = useState<Date>(endDateProp ?? addDays(startOfToday(), 2));
+  const [startDate, setStartDate] = useState<Date>(startOfToday());
+  const [endDate, setEndDate] = useState<Date>(addDays(startOfToday(), 2));
+
+  const [currentStartDate, setCurrentStartDate] = useMemo(() => ([
+    startDateProp ?? startDate,
+    setStartDateProp ?? setStartDate
+  ]), [startDateProp, startDate, setStartDateProp]);
+
+  const [currentEndDate, setCurrentEndDate] = useMemo(() => ([
+    endDateProp ?? endDate,
+    setEndDateProp ?? setEndDate
+  ]), [endDateProp, endDate, setEndDateProp]);
 
   const [currentDaysToDisplay, setCurrentDaysToDisplay] = useState<number>(3);
   const [currentInterval, setCurrentInterval] = useState<number>(2);
@@ -29,9 +39,9 @@ export const useSchedulerViewControls = (
 
   // Update view according start/end dates
   useEffect(() => {
-    setCurrentDaysToDisplay(differenceInDays(endDate, initialDate));
-    setCurrentPrevDays(differenceInDays(initialDate, startDate));
-  }, [initialDate, startDate, endDate]);
+    setCurrentDaysToDisplay(differenceInDays(currentEndDate, initialDate));
+    setCurrentPrevDays(differenceInDays(initialDate, currentStartDate));
+  }, [initialDate, currentStartDate, currentEndDate]);
 
   // Update startDate and endDate when initialDate changes
   const prevInitialDate = useRef<Date | null>(null);
@@ -43,26 +53,27 @@ export const useSchedulerViewControls = (
 
     if (initialDate.getTime() > prevInitialDate.current.getTime()) {
       const initialDateShift = differenceInDays(initialDate, prevInitialDate.current);
-      setStartDate(addDays(startDate, initialDateShift));
-      setEndDate(addDays(endDate, initialDateShift));
+      setCurrentStartDate(addDays(currentStartDate, initialDateShift));
+      setCurrentEndDate(addDays(currentEndDate, initialDateShift));
 
       prevInitialDate.current = initialDate;
     } else if (initialDate.getTime() < prevInitialDate.current.getTime()) {
       const initialDateShift = differenceInDays(prevInitialDate.current, initialDate);
-      setStartDate(addDays(startDate, -initialDateShift));
-      setEndDate(addDays(endDate, -initialDateShift));
+      setCurrentStartDate(addDays(currentStartDate, -initialDateShift));
+      setCurrentEndDate(addDays(currentEndDate, -initialDateShift));
 
       prevInitialDate.current = initialDate;
     }
-  }, [initialDate, startDate, endDate]);
+  }, [initialDate, currentStartDate, currentEndDate, setCurrentStartDate, setCurrentEndDate]);
+
 
   const extendFrom = useCallback(() => {
-    setStartDate(addDays(startDate, -1));
-  }, [startDate]);
+    setCurrentStartDate(addDays(startDate, -1));
+  }, [setCurrentStartDate, startDate]);
 
   const extendTo = useCallback(() => {
-    setEndDate(addDays(endDate, 1));
-  }, [endDate]);
+    setCurrentEndDate(addDays(endDate, 1));
+  }, [endDate, setCurrentEndDate]);
 
   const handleChangeInterval = useCallback((event: SelectChangeEvent) => {
     setCurrentInterval(Number(event.target.value));

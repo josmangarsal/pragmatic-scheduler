@@ -48,7 +48,7 @@ export type Config = {
   previousDaysToDisplay?: number;
 };
 
-export type GridCellLayout = GridLayout.Layout & { day: ScheduleDay; division: Division; resourceId: string };
+export type GridCellLayout = GridLayout.Layout & {day: ScheduleDay; division: Division; resourceId: string};
 
 export type IntervalOption = {
   label: string;
@@ -64,6 +64,8 @@ export type InfoFlowData = {
 export type SchedulerViewControlsProps = {
   prevDays?: number;
   startDate?: Date;
+  setStartDate?: () => void;
   endDate?: Date;
+  setEndDate?: () => void;
   interval?: number;
 };
