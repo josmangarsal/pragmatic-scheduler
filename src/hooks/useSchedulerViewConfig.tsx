@@ -1,10 +1,10 @@
-import {useMemo} from 'react';
-import {Config} from '../types';
-import {defaultConfig} from '../constants/defaults';
+import { useMemo } from 'react';
+import { Config } from '../types';
+import { defaultConfig } from '../constants/defaults';
 
-export const useSchedulerViewConfig = ({daysToDisplay = 3, interval = 2, prevDays = 0}) => {
+export const useSchedulerViewConfig = ({ daysToDisplay = 3, interval = 2, prevDays = 0 }) => {
   const config: Config = useMemo(() => {
-    const currentConfig = {...defaultConfig};
+    const currentConfig = { ...defaultConfig };
 
     currentConfig.daysToDisplay = daysToDisplay;
 
@@ -27,12 +27,13 @@ export const useSchedulerViewConfig = ({daysToDisplay = 3, interval = 2, prevDay
 
     currentConfig.previousDaysToDisplay = prevDays;
     currentConfig.daysToDisplay += currentConfig.previousDaysToDisplay;
+    currentConfig.unAssignedRows = 0;
 
     return currentConfig;
   }, [daysToDisplay, interval, prevDays]);
 
   return {
     currentInterval: interval,
-    config: config
+    config: config,
   };
 };

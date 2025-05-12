@@ -91,16 +91,16 @@ export const Scheduler = ({
 }) => {
   const { dateToDivisions } = useDateToDivisions();
 
-  const firstDay = useMemo(() => (
-    // TODO Custom time before activeDate, some hours, instead of full days 
-    // (For instance 0.5 means 12 hours before activeDate)
-    startOfDay(addDays(activeDate, -1 * (config.previousDaysToDisplay ?? 0)))
-  ), [activeDate, config.previousDaysToDisplay]);
+  const firstDay = useMemo(
+    () =>
+      // TODO Custom time before activeDate, some hours, instead of full days
+      // (For instance 0.5 means 12 hours before activeDate)
+      startOfDay(addDays(activeDate, -1 * (config.previousDaysToDisplay ?? 0))),
+    [activeDate, config.previousDaysToDisplay],
+  );
 
-  const lastDay = useMemo(() => (
-    endOfDay(addDays(firstDay, config.daysToDisplay))
-  ), [firstDay, config.daysToDisplay]);
-  
+  const lastDay = useMemo(() => endOfDay(addDays(firstDay, config.daysToDisplay)), [firstDay, config.daysToDisplay]);
+
   const days = useMemo(() => {
     const date = new Date(firstDay);
     const days: ScheduleDay[] = [];
@@ -111,13 +111,9 @@ export const Scheduler = ({
     return days;
   }, [dateToDivisions, divisionDetails, firstDay, lastDay]);
 
-  const range = useMemo(() => (
-    lastDay.getTime() - firstDay.getTime()
-  ), [firstDay, lastDay]);
+  const range = useMemo(() => lastDay.getTime() - firstDay.getTime(), [firstDay, lastDay]);
 
-  const totalDivisions = useMemo(() => (
-    days.reduce((acc, day) => acc + day.divisions.length, 0)
-  ), [days]);
+  const totalDivisions = useMemo(() => days.reduce((acc, day) => acc + day.divisions.length, 0), [days]);
 
   const daysWithDivisionsOrder: ScheduleDay[] = useMemo(() => {
     const daysWithDivisionsOrder: ScheduleDay[] = [];

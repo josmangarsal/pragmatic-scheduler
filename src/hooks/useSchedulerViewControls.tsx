@@ -1,37 +1,39 @@
-import {useState, useEffect, useCallback, useMemo, useRef} from 'react';
-import {FormControl, InputLabel, Select, MenuItem, SelectChangeEvent} from '@mui/material';
-import {DatePicker} from '@mui/x-date-pickers';
-import {addDays, differenceInDays, startOfToday} from 'date-fns';
-import {IntervalOption, SchedulerViewControlsProps} from '../types';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
+import { addDays, differenceInDays, startOfToday } from 'date-fns';
+import { IntervalOption, SchedulerViewControlsProps } from '../types';
 
 const intervalOptions: IntervalOption[] = [
-  {label: '15 minutes', value: 0.25},
-  {label: '30 minutes', value: 0.5},
-  {label: '1 hour', value: 1},
-  {label: '2 hours', value: 2},
-  {label: '1 day', value: 24}
+  { label: '15 minutes', value: 0.25 },
+  { label: '30 minutes', value: 0.5 },
+  { label: '1 hour', value: 1 },
+  { label: '2 hours', value: 2 },
+  { label: '1 day', value: 24 },
 ];
 
 export const useSchedulerViewControls = (
   initialDate: Date,
   {
-    startDate: startDateProp, setStartDate: setStartDateProp,
-    endDate: endDateProp, setEndDate: setEndDateProp,
-    interval: intervalProp
-  }: SchedulerViewControlsProps = {}
+    startDate: startDateProp,
+    setStartDate: setStartDateProp,
+    endDate: endDateProp,
+    setEndDate: setEndDateProp,
+    interval: intervalProp,
+  }: SchedulerViewControlsProps = {},
 ) => {
   const [startDate, setStartDate] = useState<Date>(startOfToday());
   const [endDate, setEndDate] = useState<Date>(addDays(startOfToday(), 2));
 
-  const [currentStartDate, setCurrentStartDate] = useMemo(() => ([
-    startDateProp ?? startDate,
-    setStartDateProp ?? setStartDate
-  ]), [startDateProp, startDate, setStartDateProp]);
+  const [currentStartDate, setCurrentStartDate] = useMemo(
+    () => [startDateProp ?? startDate, setStartDateProp ?? setStartDate],
+    [startDateProp, startDate, setStartDateProp],
+  );
 
-  const [currentEndDate, setCurrentEndDate] = useMemo(() => ([
-    endDateProp ?? endDate,
-    setEndDateProp ?? setEndDate
-  ]), [endDateProp, endDate, setEndDateProp]);
+  const [currentEndDate, setCurrentEndDate] = useMemo(
+    () => [endDateProp ?? endDate, setEndDateProp ?? setEndDate],
+    [endDateProp, endDate, setEndDateProp],
+  );
 
   const [currentDaysToDisplay, setCurrentDaysToDisplay] = useState<number>(3);
   const [currentInterval, setCurrentInterval] = useState<number>(2);
@@ -66,7 +68,6 @@ export const useSchedulerViewControls = (
     }
   }, [initialDate, currentStartDate, currentEndDate, setCurrentStartDate, setCurrentEndDate]);
 
-
   const extendFrom = useCallback(() => {
     setCurrentStartDate(addDays(startDate, -1));
   }, [setCurrentStartDate, startDate]);
@@ -79,72 +80,79 @@ export const useSchedulerViewControls = (
     setCurrentInterval(Number(event.target.value));
   }, []);
 
-  const handleChangeFrom = useCallback((date: Date | null) => {
-    if (!date) return;
+  const handleChangeFrom = useCallback(
+    (date: Date | null) => {
+      if (!date) return;
 
-    if (date > endDate) {
-      setEndDate(date);
-    }
+      if (date > endDate) {
+        setEndDate(date);
+      }
 
-    setStartDate(date);
-  }, [endDate]);
-
-  const handleChangeTo = useCallback((date: Date | null) => {
-    if (!date) return;
-
-    if (date < startDate) {
       setStartDate(date);
-    }
+    },
+    [endDate],
+  );
 
-    setEndDate(date);
-  }, [startDate]);
+  const handleChangeTo = useCallback(
+    (date: Date | null) => {
+      if (!date) return;
 
-  const controls = useMemo(() => (
-    startDateProp && endDateProp && intervalProp
-      ? null :
-      <>
+      if (date < startDate) {
+        setStartDate(date);
+      }
 
-        {startDateProp ? null :
-          <FormControl sx={{m: 1, minWidth: 120}}>
-            <DatePicker
-              label='From'
-              value={startDate}
-              onChange={handleChangeFrom}
-            />
-          </FormControl>
-        }
+      setEndDate(date);
+    },
+    [startDate],
+  );
 
-        {endDateProp ? null :
-          <FormControl sx={{m: 1, minWidth: 120}}>
-            <DatePicker
-              label='To'
-              value={endDate}
-              onChange={handleChangeTo}
-            />
-          </FormControl>
-        }
+  const controls = useMemo(
+    () =>
+      startDateProp && endDateProp && intervalProp ? null : (
+        <>
+          {startDateProp ? null : (
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <DatePicker label="From" value={startDate} onChange={handleChangeFrom} />
+            </FormControl>
+          )}
 
-        {intervalProp ? null :
-          <FormControl sx={{m: 1, minWidth: 120}}>
-            <InputLabel id='interval-select-label'>Interval</InputLabel>
-            <Select
-              labelId='interval-select-label'
-              label='Interval'
-              value={`${currentInterval}`}
-              onChange={handleChangeInterval}
-            >
-              {
-                intervalOptions.map(({label, value}) => (
-                  <MenuItem key={value} value={value}>{label}</MenuItem>
-                ))
-              }
-            </Select>
-          </FormControl>
-        }
+          {endDateProp ? null : (
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <DatePicker label="To" value={endDate} onChange={handleChangeTo} />
+            </FormControl>
+          )}
 
-      </>
-  ), [startDateProp, startDate, handleChangeFrom, endDateProp, endDate,
-    handleChangeTo, intervalProp, currentInterval, handleChangeInterval]);
+          {intervalProp ? null : (
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="interval-select-label">Interval</InputLabel>
+              <Select
+                labelId="interval-select-label"
+                label="Interval"
+                value={`${currentInterval}`}
+                onChange={handleChangeInterval}
+              >
+                {intervalOptions.map(({ label, value }) => (
+                  <MenuItem key={value} value={value}>
+                    {label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        </>
+      ),
+    [
+      startDateProp,
+      startDate,
+      handleChangeFrom,
+      endDateProp,
+      endDate,
+      handleChangeTo,
+      intervalProp,
+      currentInterval,
+      handleChangeInterval,
+    ],
+  );
 
   return {
     controls: controls,
@@ -153,5 +161,5 @@ export const useSchedulerViewControls = (
     prevDays: currentPrevDays,
     extendFrom: extendFrom,
     extendTo: extendTo,
-  }
+  };
 };

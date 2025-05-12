@@ -14,7 +14,7 @@
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "build": "tsc",
     "build-demo": "react-scripts build",
-    "format": "prettier --write \"src/**/*.{ts,js}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
     "lint": "npx eslint . --ext .ts,.tsx,.js,.jsx",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",

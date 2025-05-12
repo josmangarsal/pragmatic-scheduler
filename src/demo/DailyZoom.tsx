@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
-import {Box, Typography} from '@mui/material';
-import {Scheduler} from '../components/Scheduler';
-import {CalEvent} from '../types';
-import {SchedulerDateControls} from '../components/SchedulerDateControls';
-import {events as rawEvents, resources} from '../data/daily';
-import {startOfToday, setHours} from 'date-fns';
-import {useSchedulerIntervals} from '../hooks/useSchedulerIntervals';
+import React, { useState } from 'react';
+import { Box, Typography } from '@mui/material';
+import { Scheduler } from '../components/Scheduler';
+import { CalEvent } from '../types';
+import { SchedulerDateControls } from '../components/SchedulerDateControls';
+import { events as rawEvents, resources } from '../data/daily';
+import { startOfToday, setHours } from 'date-fns';
+import { useSchedulerIntervals } from '../hooks/useSchedulerIntervals';
 
 function DailyZoom() {
   // Start position
@@ -13,11 +13,8 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const {
-    controls, currentInterval,
-    extendFrom, extendTo,
-    config, divisionDetails
-  } = useSchedulerIntervals(activeDate);
+  const { controls, currentInterval, extendFrom, extendTo, config, divisionDetails } =
+    useSchedulerIntervals(activeDate);
 
   const handleEventChange = (event: CalEvent) => {
     setEvents((prevEvents) => {

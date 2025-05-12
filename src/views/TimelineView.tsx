@@ -1,19 +1,19 @@
-import {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {SchedulerContext} from '../components/Scheduler';
-import {HeaderRow, UnAssignedEvents} from '../components/HeaderRow';
-import {Box} from '@mui/material';
-import {ResourceCell} from '../layout/ResourceCell';
-import {ResourceHeader} from '../layout/ResourceHeader';
-import {GridCell} from '../layout/GridCell';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { SchedulerContext } from '../components/Scheduler';
+import { HeaderRow, UnAssignedEvents } from '../components/HeaderRow';
+import { Box } from '@mui/material';
+import { ResourceCell } from '../layout/ResourceCell';
+import { ResourceHeader } from '../layout/ResourceHeader';
+import { GridCell } from '../layout/GridCell';
 import GridLayout from 'react-grid-layout';
-import {EventTile} from '../components/EventTile';
-import {UnassignedHeader} from '../components/UnassignedHeader';
-import {useCalcEventPosition} from '../hooks/useCalcEventPosition';
-import {useLayoutToCalEvent} from '../hooks/useLayoutToCalEvent';
-import {useCalcGridPositions} from '../hooks/useCalcGridPositions';
-import {CalEvent} from '../types';
-import {isBefore} from 'date-fns';
-import {dateToPosition} from '../helpers/datePositionHelper';
+import { EventTile } from '../components/EventTile';
+import { UnassignedHeader } from '../components/UnassignedHeader';
+import { useCalcEventPosition } from '../hooks/useCalcEventPosition';
+import { useLayoutToCalEvent } from '../hooks/useLayoutToCalEvent';
+import { useCalcGridPositions } from '../hooks/useCalcGridPositions';
+import { CalEvent } from '../types';
+import { isBefore } from 'date-fns';
+import { dateToPosition } from '../helpers/datePositionHelper';
 
 export const TimelineView = () => {
   const {
@@ -22,7 +22,7 @@ export const TimelineView = () => {
     days,
     config,
     activeDate,
-    calendarBounds: {totalDivisions, start, end},
+    calendarBounds: { totalDivisions, start, end },
     onEventChange,
   } = useContext(SchedulerContext);
 
@@ -35,7 +35,7 @@ export const TimelineView = () => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const [dragCalEvent, setDragCalEvent] = useState<CalEvent | undefined>();
-  const [droppingItem, setDroppingItem] = useState<GridLayout.Layout>({i: 'droppedItem', w: 4, h: 1, x: 0, y: 0});
+  const [droppingItem, setDroppingItem] = useState<GridLayout.Layout>({ i: 'droppedItem', w: 4, h: 1, x: 0, y: 0 });
   const [layouts, setLayouts] = useState<GridLayout.Layout[]>(gridLayouts);
 
   const updateLayout = useCallback(
@@ -101,8 +101,7 @@ export const TimelineView = () => {
         if (e.deltaY === 0) return;
         if (
           !(el.scrollLeft === 0 && e.deltaY < 0) &&
-          !(el.scrollWidth - el.clientWidth - Math.round(el.scrollLeft) === 0 &&
-            e.deltaY > 0)
+          !(el.scrollWidth - el.clientWidth - Math.round(el.scrollLeft) === 0 && e.deltaY > 0)
         ) {
           e.preventDefault();
         }
@@ -233,11 +232,13 @@ export const TimelineView = () => {
                 const dataGridProps = calcEventPosition(event);
                 return (
                   <div key={event.id} data-grid={dataGridProps}>
-                    <EventTile key={event.id} event={event}
+                    <EventTile
+                      key={event.id}
+                      event={event}
                       infoFlowData={{
                         scrollRef: ref.current,
                         dataGridProps: dataGridProps,
-                        config: config
+                        config: config,
                       }}
                     />
                   </div>

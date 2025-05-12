@@ -1,11 +1,11 @@
-import {useContext} from 'react';
-import {Box, Typography, TypographyProps, styled} from '@mui/material';
-import {CalEvent, InfoFlowData} from '../types';
-import {format} from 'date-fns';
-import {SchedulerContext} from './Scheduler';
-import {useEventInfoFlow} from '../hooks/useEventInfoFlow';
+import { useContext } from 'react';
+import { Box, Typography, TypographyProps, styled } from '@mui/material';
+import { CalEvent, InfoFlowData } from '../types';
+import { format } from 'date-fns';
+import { SchedulerContext } from './Scheduler';
+import { useEventInfoFlow } from '../hooks/useEventInfoFlow';
 
-const Container = styled(Box)(({theme}) => ({
+const Container = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -17,20 +17,24 @@ const InnerText = styled((props: TypographyProps) => <Typography variant="captio
   userSelect: 'none',
 }));
 
-export const EventTile = ({event, infoFlowData}: {event: CalEvent, infoFlowData: InfoFlowData | null}) => {
-  const {EventTile: EventTileOverride} = useContext(SchedulerContext);
+export const EventTile = ({ event, infoFlowData }: { event: CalEvent; infoFlowData: InfoFlowData | null }) => {
+  const { EventTile: EventTileOverride } = useContext(SchedulerContext);
   const Component = EventTileOverride || DefaultEventTile;
   return <Component event={event} infoFlowData={infoFlowData} />;
 };
 EventTile.displayName = 'EventTile';
 
-const DefaultEventTile = ({event, infoFlowData}: {event: CalEvent, infoFlowData: InfoFlowData | null}) => {
+const DefaultEventTile = ({ event, infoFlowData }: { event: CalEvent; infoFlowData: InfoFlowData | null }) => {
   const flowRef = useEventInfoFlow(infoFlowData);
 
   return (
-    <Container key={event.id} bgcolor={event.bgColor || 'primary.main'} style={{cursor: 'move'}}>
-      <Box ref={flowRef} className="handle" flex={1} padding={1}
-        style={{width: 'fit-content', position: 'sticky', left: 0}}
+    <Container key={event.id} bgcolor={event.bgColor || 'primary.main'} style={{ cursor: 'move' }}>
+      <Box
+        ref={flowRef}
+        className="handle"
+        flex={1}
+        padding={1}
+        style={{ width: 'fit-content', position: 'sticky', left: 0 }}
       >
         <InnerText fontWeight="bold" color={event.textColor || 'text.primary'}>
           {event.title}

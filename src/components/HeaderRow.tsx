@@ -1,11 +1,12 @@
 import React, { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SchedulerContext } from './Scheduler';
-import { Box, IconButton, Typography, styled } from '@mui/material';
+import { Box, Typography, styled } from '@mui/material';
 import { CalEvent, ScheduleDay } from '../types';
 import { format, isSameDay } from 'date-fns';
 import { BorderedBox } from '../layout/BorderedBox';
 import { useUnassignedEventPosition } from '../hooks/useUnassignedEventPosition';
 import { EventTile } from './EventTile';
+import { HeaderControls } from './HeaderControls';
 
 export const HeaderRow = ({ days }: { days: ScheduleDay[] }) => {
   const {
@@ -14,14 +15,17 @@ export const HeaderRow = ({ days }: { days: ScheduleDay[] }) => {
   } = useContext(SchedulerContext);
 
   return (
-    <Box flex={1} display="flex" minHeight={rowHeight} maxHeight={rowHeight}>
-      {/* Add columns for each day */}
-      {HeaderRowOverride ? (
-        <HeaderRowOverride days={days} />
-      ) : (
-        days.map((day, index) => <HeaderCell key={index} day={day} />)
-      )}
-    </Box>
+    <>
+      <HeaderControls />
+      <Box flex={1} display="flex" minHeight={rowHeight} maxHeight={rowHeight}>
+        {/* Add columns for each day */}
+        {HeaderRowOverride ? (
+          <HeaderRowOverride days={days} />
+        ) : (
+          days.map((day, index) => <HeaderCell key={index} day={day} />)
+        )}
+      </Box>
+    </>
   );
 };
 
@@ -32,48 +36,19 @@ const useWidthPlusSpacing = () => {
 };
 
 const HeaderCell = ({ day }: { day: ScheduleDay }) => {
-  const { activeDate, days, extendFrom, extendTo } = useContext(SchedulerContext);
+  const { activeDate } = useContext(SchedulerContext);
   const isActive = isSameDay(day.date, activeDate);
   const width = useWidthPlusSpacing();
   const dayWidth = width * day.divisions.length;
 
-  const isFirstDay = isSameDay(day.date, days[0].date);
-  const isLastDay = isSameDay(day.date, days[days.length - 1].date);
-
   return (
-    <BorderedBox flexDirection="column" minWidth={dayWidth} maxWidth={dayWidth} overflow="hidden"
-    style={{ position: 'relative', overflow: 'visible' }}>
-      {/* (First day) Add button to load prev day */}
-      {isFirstDay && extendFrom &&
-        <div style={{
-          position: 'absolute',
-          top: '-45px',
-          backgroundColor: 'firebrick',
-          border: '3px solid black',
-          borderRadius: '80% 0 55% 50% / 55% 0 80% 50%',
-          transform: 'rotate(-200deg)'
-        }}>
-          <IconButton onClick={extendFrom}>
-            +
-          </IconButton>
-        </div>
-      }
-      {/* (Last day) Add button to load next day */}
-      {isLastDay && extendTo &&
-        <div style={{
-          position: 'absolute',
-          top: '-45px',
-          right: '0',
-          backgroundColor: 'firebrick',
-          border: '3px solid black',
-          borderRadius: '80% 0 55% 50% / 55% 0 80% 50%',
-          transform: 'rotate(-200deg)'
-        }}>
-          <IconButton onClick={extendTo}>
-            +
-          </IconButton>
-        </div>
-      }
+    <BorderedBox
+      flexDirection="column"
+      minWidth={dayWidth}
+      maxWidth={dayWidth}
+      overflow="hidden"
+      style={{ position: 'relative', overflow: 'visible' }}
+    >
       <Typography variant="tableHeader" color={isActive ? 'secondary.main' : 'text.disabled'} p={0.75}>
         {format(day.date, 'EEE P')}
       </Typography>

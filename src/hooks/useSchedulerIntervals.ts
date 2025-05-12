@@ -1,19 +1,21 @@
-import {SchedulerViewControlsProps} from '../types';
-import {useDivisionDetailsGenerator} from './useDivisionDetailsGenerator';
-import {useSchedulerViewConfig} from './useSchedulerViewConfig';
-import {useSchedulerViewControls} from './useSchedulerViewControls';
+import { SchedulerViewControlsProps } from '../types';
+import { useDivisionDetailsGenerator } from './useDivisionDetailsGenerator';
+import { useSchedulerViewConfig } from './useSchedulerViewConfig';
+import { useSchedulerViewControls } from './useSchedulerViewControls';
 
 export const useSchedulerIntervals = (
   activeDate: Date,
-  {startDate, setStartDate, endDate, setEndDate, interval}: SchedulerViewControlsProps = {},
+  { startDate, setStartDate, endDate, setEndDate, interval }: SchedulerViewControlsProps = {},
 ) => {
-  const {controls, extendFrom, extendTo, ...viewConfigValues} = useSchedulerViewControls(activeDate, {
-    startDate, setStartDate,
-    endDate, setEndDate,
+  const { controls, extendFrom, extendTo, ...viewConfigValues } = useSchedulerViewControls(activeDate, {
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
     interval,
   });
-  const {currentInterval, config} = useSchedulerViewConfig(viewConfigValues);
-  const {divisionDetails} = useDivisionDetailsGenerator(currentInterval);
+  const { currentInterval, config } = useSchedulerViewConfig(viewConfigValues);
+  const { divisionDetails } = useDivisionDetailsGenerator(currentInterval);
 
   return {
     controls,

@@ -1,0 +1,7 @@
+.headerControl {
+  opacity: 0.3;
+}
+
+.headerControl:hover {
+  opacity: 1;
+}
