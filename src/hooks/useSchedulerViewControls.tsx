@@ -69,12 +69,12 @@ export const useSchedulerViewControls = (
   }, [initialDate, currentStartDate, currentEndDate, setCurrentStartDate, setCurrentEndDate]);
 
   const extendFrom = useCallback(() => {
-    setCurrentStartDate(addDays(startDate, -1));
-  }, [setCurrentStartDate, startDate]);
+    setCurrentStartDate(addDays(currentStartDate, -1));
+  }, [setCurrentStartDate, currentStartDate]);
 
   const extendTo = useCallback(() => {
-    setCurrentEndDate(addDays(endDate, 1));
-  }, [endDate, setCurrentEndDate]);
+    setCurrentEndDate(addDays(currentEndDate, 1));
+  }, [currentEndDate, setCurrentEndDate]);
 
   const handleChangeInterval = useCallback((event: SelectChangeEvent) => {
     setCurrentInterval(Number(event.target.value));

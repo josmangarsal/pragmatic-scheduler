@@ -1,10 +1,29 @@
+/** @jsxImportSource @emotion/react */
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SchedulerContext } from './Scheduler';
 import { IconButton } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import './HeaderControls.css';
+import styled from '@emotion/styled';
+
+interface HeaderProps {
+  left?: string;
+  right?: string;
+}
+
+const FloatingHeaderControl = styled.div<HeaderProps>`
+  position: absolute;
+  top: 0px;
+  left: ${(props) => props.left || 'auto'};
+  right: ${(props) => props.right || 'auto'};
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+`;
 
 export const HeaderControls = () => {
   const { extendFrom, extendTo } = useContext(SchedulerContext);
@@ -64,36 +83,36 @@ export const HeaderControls = () => {
     >
       {visibleFirstDay && extendFrom && (
         // + ...
-        <div style={{ position: 'absolute', top: '0px', left: '0px' }} className="headerControl">
+        <FloatingHeaderControl left="0px">
           <IconButton onClick={extendFrom}>
             <AddCircleIcon fontSize="large" />
           </IconButton>
-        </div>
+        </FloatingHeaderControl>
       )}
 
       {visibleLastDay && extendTo && (
         // ... +
-        <div style={{ position: 'absolute', top: '0px', right: '1px' }} className="headerControl">
+        <FloatingHeaderControl right="1px">
           <IconButton onClick={extendTo}>
             <AddCircleIcon fontSize="large" />
           </IconButton>
-        </div>
+        </FloatingHeaderControl>
       )}
       {!visibleFirstDay && (
         // << ...
-        <div style={{ position: 'absolute', top: '0px', left: '0px' }} className="headerControl">
+        <FloatingHeaderControl left="0px">
           <IconButton onClick={scrollLeft}>
             <ArrowCircleLeftIcon fontSize="large" />
           </IconButton>
-        </div>
+        </FloatingHeaderControl>
       )}
       {!visibleLastDay && (
         // ... >>
-        <div style={{ position: 'absolute', top: '0px', right: '1px' }} className="headerControl">
+        <FloatingHeaderControl right="1px">
           <IconButton onClick={scrollRight}>
             <ArrowCircleRightIcon fontSize="large" />
           </IconButton>
-        </div>
+        </FloatingHeaderControl>
       )}
     </div>
   );
