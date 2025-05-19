@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { Box, Typography, TypographyProps, styled } from '@mui/material';
+import { MutableRefObject, useContext, useMemo } from 'react';
+import { Box, Tooltip, Typography, TypographyProps, styled } from '@mui/material';
 import { CalEvent, InfoFlowData } from '../types';
 import { format } from 'date-fns';
 import { SchedulerContext } from './Scheduler';
@@ -20,30 +20,69 @@ const InnerText = styled((props: TypographyProps) => <Typography variant="captio
 export const EventTile = ({ event, infoFlowData }: { event: CalEvent; infoFlowData: InfoFlowData | null }) => {
   const { EventTile: EventTileOverride } = useContext(SchedulerContext);
   const Component = EventTileOverride || DefaultEventTile;
-  return <Component event={event} infoFlowData={infoFlowData} />;
+
+  const { contentRef, isContentVisible, isEllipsis } = useEventInfoFlow(infoFlowData);
+
+  const showTooltip = useMemo(() => !isContentVisible || isEllipsis, [isContentVisible, isEllipsis]);
+
+  return <Component event={event} contentRef={contentRef} showTooltip={showTooltip} />;
 };
 EventTile.displayName = 'EventTile';
 
-const DefaultEventTile = ({ event, infoFlowData }: { event: CalEvent; infoFlowData: InfoFlowData | null }) => {
-  const flowRef = useEventInfoFlow(infoFlowData);
+const DefaultEventTile = ({
+  event,
+  tooltip,
+  contentRef,
+  showTooltip,
+}: {
+  event: CalEvent;
+  tooltip?: React.ReactNode;
+  contentRef?: MutableRefObject<HTMLDivElement | undefined>;
+  showTooltip?: boolean;
+}) => {
+  const eventContent = useMemo(
+    () => (
+      <Container key={event.id} bgcolor={event.bgColor || 'primary.main'} style={{ cursor: 'move' }}>
+        <Box
+          ref={contentRef}
+          className="handle"
+          flex={1}
+          padding={1}
+          style={{ width: 'fit-content', position: 'sticky', left: 0 }}
+        >
+          <InnerText fontWeight="bold" color={event.textColor || 'text.primary'}>
+            {event.title}
+          </InnerText>
+          <InnerText color={event.textColor || 'text.primary'}>
+            {`${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`}
+          </InnerText>
+        </Box>
+      </Container>
+    ),
+    [event, contentRef],
+  );
+
+  const eventTooltip = useMemo(
+    () =>
+      tooltip ?? (
+        <Box>
+          <InnerText fontWeight="bold">{event.title}</InnerText>
+          <InnerText>{`${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`}</InnerText>
+        </Box>
+      ),
+    [event, tooltip],
+  );
 
   return (
-    <Container key={event.id} bgcolor={event.bgColor || 'primary.main'} style={{ cursor: 'move' }}>
-      <Box
-        ref={flowRef}
-        className="handle"
-        flex={1}
-        padding={1}
-        style={{ width: 'fit-content', position: 'sticky', left: 0 }}
-      >
-        <InnerText fontWeight="bold" color={event.textColor || 'text.primary'}>
-          {event.title}
-        </InnerText>
-        <InnerText color={event.textColor || 'text.primary'}>
-          {`${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`}
-        </InnerText>
-      </Box>
-    </Container>
+    <Tooltip
+      title={!showTooltip ? null : eventTooltip}
+      followCursor
+      disableHoverListener={!showTooltip}
+      disableFocusListener={!showTooltip}
+      disableTouchListener={!showTooltip}
+    >
+      {eventContent}
+    </Tooltip>
   );
 };
 
