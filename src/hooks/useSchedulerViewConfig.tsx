@@ -14,7 +14,7 @@ export const useSchedulerViewConfig = ({ daysToDisplay = 3, interval = 2, prevDa
 
     switch (interval) {
       case 0.25: // 15 minutes
-        currentConfig.divisionWidth = 160 / 2;
+        // currentConfig.divisionWidth = 160 / 2;
         break;
       case 24: // 1 day
         currentConfig.divisionWidth = 160 * 2;

@@ -26,7 +26,14 @@ const FloatingHeaderControl = styled.div<HeaderProps>`
 `;
 
 export const HeaderControls = () => {
-  const { extendFrom, extendTo } = useContext(SchedulerContext);
+  const {
+    extendFrom,
+    extendTo,
+    ExtendLeftIconButton,
+    ExtendRightIconButton,
+    ScrollLeftIconButton,
+    ScrollRightIconButton,
+  } = useContext(SchedulerContext);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -84,34 +91,50 @@ export const HeaderControls = () => {
       {visibleFirstDay && extendFrom && (
         // + ...
         <FloatingHeaderControl left="0px">
-          <IconButton onClick={extendFrom}>
-            <AddCircleIcon fontSize="large" />
-          </IconButton>
+          {ExtendLeftIconButton ? (
+            <ExtendLeftIconButton onClick={extendFrom} />
+          ) : (
+            <IconButton onClick={extendFrom}>
+              <AddCircleIcon fontSize="large" />
+            </IconButton>
+          )}
         </FloatingHeaderControl>
       )}
 
       {visibleLastDay && extendTo && (
         // ... +
         <FloatingHeaderControl right="1px">
-          <IconButton onClick={extendTo}>
-            <AddCircleIcon fontSize="large" />
-          </IconButton>
+          {ExtendRightIconButton ? (
+            <ExtendRightIconButton onClick={extendTo} />
+          ) : (
+            <IconButton onClick={extendTo}>
+              <AddCircleIcon fontSize="large" />
+            </IconButton>
+          )}
         </FloatingHeaderControl>
       )}
       {!visibleFirstDay && (
         // << ...
         <FloatingHeaderControl left="0px">
-          <IconButton onClick={scrollLeft}>
-            <ArrowCircleLeftIcon fontSize="large" />
-          </IconButton>
+          {ScrollLeftIconButton ? (
+            <ScrollLeftIconButton onClick={scrollLeft} />
+          ) : (
+            <IconButton onClick={scrollLeft}>
+              <ArrowCircleLeftIcon fontSize="large" />
+            </IconButton>
+          )}
         </FloatingHeaderControl>
       )}
       {!visibleLastDay && (
         // ... >>
         <FloatingHeaderControl right="1px">
-          <IconButton onClick={scrollRight}>
-            <ArrowCircleRightIcon fontSize="large" />
-          </IconButton>
+          {ScrollRightIconButton ? (
+            <ScrollRightIconButton onClick={scrollRight} />
+          ) : (
+            <IconButton onClick={scrollRight}>
+              <ArrowCircleRightIcon fontSize="large" />
+            </IconButton>
+          )}
         </FloatingHeaderControl>
       )}
     </div>

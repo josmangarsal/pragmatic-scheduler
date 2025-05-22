@@ -42,6 +42,10 @@ export const SchedulerContext = React.createContext<{
   EventTile?: React.FC<{ event: CalEvent }>;
   extendFrom?: () => void;
   extendTo?: () => void;
+  ExtendLeftIconButton?: React.FC<{ onClick: () => void }>;
+  ExtendRightIconButton?: React.FC<{ onClick: () => void }>;
+  ScrollLeftIconButton?: React.FC<{ onClick: () => void }>;
+  ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
 }>({
   activeDate: new Date(),
   days: [],
@@ -72,6 +76,10 @@ export const Scheduler = ({
   EventTile,
   extendFrom,
   extendTo,
+  ExtendLeftIconButton,
+  ExtendRightIconButton,
+  ScrollLeftIconButton,
+  ScrollRightIconButton,
 }: {
   activeDate: Date;
   divisionDetails?: DivisionDetail[];
@@ -88,6 +96,10 @@ export const Scheduler = ({
   EventTile?: React.FC<{ event: CalEvent }>;
   extendFrom?: () => void;
   extendTo?: () => void;
+  ExtendLeftIconButton?: React.FC<{ onClick: () => void }>;
+  ExtendRightIconButton?: React.FC<{ onClick: () => void }>;
+  ScrollLeftIconButton?: React.FC<{ onClick: () => void }>;
+  ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
 
@@ -152,6 +164,10 @@ export const Scheduler = ({
         EventTile: EventTile,
         extendFrom: extendFrom,
         extendTo: extendTo,
+        ExtendLeftIconButton: ExtendLeftIconButton,
+        ExtendRightIconButton: ExtendRightIconButton,
+        ScrollLeftIconButton: ScrollLeftIconButton,
+        ScrollRightIconButton: ScrollRightIconButton,
       }}
     >
       <Container>
