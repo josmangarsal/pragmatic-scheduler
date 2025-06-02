@@ -4,7 +4,7 @@ import { Scheduler } from '../components/Scheduler';
 import { CalEvent } from '../types';
 import { SchedulerDateControls } from '../components/SchedulerDateControls';
 import { events as rawEvents, resources } from '../data/daily';
-import { startOfToday, setHours } from 'date-fns';
+import { startOfToday, setHours, setMinutes, addDays } from 'date-fns';
 import { useSchedulerIntervals } from '../hooks/useSchedulerIntervals';
 
 function DailyZoom() {
@@ -13,8 +13,13 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const { controls, currentInterval, extendFrom, extendTo, config, divisionDetails } =
-    useSchedulerIntervals(activeDate);
+  const { controls, currentInterval, extendFrom, extendTo, config, divisionDetails } = useSchedulerIntervals(
+    activeDate,
+    {
+      startDate: setMinutes(setHours(startOfToday(), 7), 15),
+      endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1), // BE CAREFUL! multiple of interval time
+    },
+  );
 
   const handleEventChange = (event: CalEvent) => {
     setEvents((prevEvents) => {
@@ -46,6 +51,8 @@ function DailyZoom() {
         config={config}
         extendFrom={extendFrom} // don't pass to hide extend button
         extendTo={extendTo}
+        firstDay={setMinutes(setHours(startOfToday(), 7), 15)}
+        lastDay={addDays(setMinutes(setHours(startOfToday(), 19), 15), 1)}
       />
     </>
   );

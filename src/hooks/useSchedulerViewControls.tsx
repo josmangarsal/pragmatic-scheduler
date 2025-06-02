@@ -53,6 +53,7 @@ export const useSchedulerViewControls = (
   }, [initialDate, currentStartDate, currentEndDate, currentDaysToDisplay, currentPrevDays]);
 
   // Update startDate and endDate when initialDate changes
+  /*
   const prevInitialDate = useRef<Date | null>(null);
   useEffect(() => {
     if (!prevInitialDate.current) {
@@ -90,6 +91,7 @@ export const useSchedulerViewControls = (
       prevInitialDate.current = initialDate;
     }
   }, [initialDate, currentStartDate, currentEndDate, setCurrentStartDate, setCurrentEndDate]);
+  */
 
   const extendFrom = useCallback(() => {
     setCurrentStartDate(addDays(currentStartDate, -1));

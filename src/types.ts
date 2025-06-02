@@ -2,6 +2,7 @@ import GridLayout from 'react-grid-layout';
 
 export type ScheduleDay = {
   date: Date;
+  dateEnd: Date;
   divisions: Division[];
 };
 
@@ -55,10 +56,18 @@ export type IntervalOption = {
   value: number;
 };
 
+export type ExtendedGridLayout = GridLayout.Layout & OverflowData;
+
 export type InfoFlowData = {
   scrollRef: HTMLDivElement | null;
   dataGridProps: GridLayout.Layout;
   config: Config;
+};
+
+export type OverflowData = {
+  leftOverflow: boolean;
+  middleOverflow: number | null;
+  rightOverflow: boolean;
 };
 
 export type SchedulerViewControlsProps = {

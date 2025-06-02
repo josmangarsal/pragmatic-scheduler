@@ -3,7 +3,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { Box, BoxProps, styled } from '@mui/material';
 import { ScheduleDay, Resource, CalEvent, Config, DivisionDetail, GridCellLayout } from '../types';
-import { addDays, endOfDay, startOfDay } from 'date-fns';
+import { addDays, endOfDay, isSameDay, startOfDay } from 'date-fns';
 import { defaultConfig, defaultDivisionDetails } from '../constants/defaults';
 import { useDateToDivisions } from '../hooks/useDateToDivisions';
 import { TimelineView } from '../views/TimelineView';
@@ -80,6 +80,8 @@ export const Scheduler = ({
   ExtendRightIconButton,
   ScrollLeftIconButton,
   ScrollRightIconButton,
+  firstDay: firstDayProp,
+  lastDay: lastDayProp,
 }: {
   activeDate: Date;
   divisionDetails?: DivisionDetail[];
@@ -100,18 +102,20 @@ export const Scheduler = ({
   ExtendRightIconButton?: React.FC<{ onClick: () => void }>;
   ScrollLeftIconButton?: React.FC<{ onClick: () => void }>;
   ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
+  firstDay?: Date;
+  lastDay?: Date;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
 
   const firstDay = useMemo(
-    () =>
-      // TODO Custom time before activeDate, some hours, instead of full days
-      // (For instance 0.5 means 12 hours before activeDate)
-      startOfDay(addDays(activeDate, -1 * (config.previousDaysToDisplay ?? 0))),
-    [activeDate, config.previousDaysToDisplay],
+    () => firstDayProp ?? startOfDay(addDays(activeDate, -1 * (config.previousDaysToDisplay ?? 0))),
+    [activeDate, config.previousDaysToDisplay, firstDayProp],
   );
 
-  const lastDay = useMemo(() => endOfDay(addDays(firstDay, config.daysToDisplay)), [firstDay, config.daysToDisplay]);
+  const lastDay = useMemo(
+    () => lastDayProp ?? endOfDay(addDays(firstDay, config.daysToDisplay)),
+    [lastDayProp, firstDay, config.daysToDisplay],
+  );
 
   const days = useMemo(() => {
     const date = new Date(firstDay);
@@ -138,12 +142,21 @@ export const Scheduler = ({
   }, [days]);
 
   const filteredEvents = useMemo(() => {
-    return events.filter(
-      (event) =>
+    return events.filter((event) => {
+      const eventDay = days.find((day) => isSameDay(day.date, event.startTime));
+      if (eventDay) {
+        return (
+          (event.startTime >= eventDay.date && event.startTime <= eventDay.dateEnd) ||
+          (event.endTime >= eventDay.date && event.endTime <= eventDay.dateEnd)
+        );
+      }
+
+      return (
         (event.startTime >= firstDay && event.startTime <= lastDay) ||
-        (event.endTime >= firstDay && event.endTime <= lastDay),
-    );
-  }, [events, firstDay, lastDay]);
+        (event.endTime >= firstDay && event.endTime <= lastDay)
+      );
+    });
+  }, [days, events, firstDay, lastDay]);
 
   return (
     <SchedulerContext.Provider

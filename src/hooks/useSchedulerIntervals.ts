@@ -15,7 +15,7 @@ export const useSchedulerIntervals = (
     interval,
   });
   const { currentInterval, config } = useSchedulerViewConfig(viewConfigValues);
-  const { divisionDetails } = useDivisionDetailsGenerator(currentInterval);
+  const { divisionDetails } = useDivisionDetailsGenerator(currentInterval, { startDate, endDate });
 
   return {
     controls,

@@ -1,7 +1,7 @@
 import { MutableRefObject, useContext, useMemo } from 'react';
 import { Box, Tooltip, Typography, TypographyProps, styled } from '@mui/material';
-import { CalEvent, InfoFlowData } from '../types';
-import { format } from 'date-fns';
+import { CalEvent, InfoFlowData, OverflowData } from '../types';
+import { differenceInCalendarDays, format } from 'date-fns';
 import { SchedulerContext } from './Scheduler';
 import { useEventInfoFlow } from '../hooks/useEventInfoFlow';
 
@@ -17,7 +17,15 @@ const InnerText = styled((props: TypographyProps) => <Typography variant="captio
   userSelect: 'none',
 }));
 
-export const EventTile = ({ event, infoFlowData }: { event: CalEvent; infoFlowData: InfoFlowData | null }) => {
+export const EventTile = ({
+  event,
+  infoFlowData,
+  overflowData,
+}: {
+  event: CalEvent;
+  infoFlowData: InfoFlowData | null;
+  overflowData?: OverflowData;
+}) => {
   const { EventTile: EventTileOverride } = useContext(SchedulerContext);
   const Component = EventTileOverride || DefaultEventTile;
 
@@ -25,7 +33,26 @@ export const EventTile = ({ event, infoFlowData }: { event: CalEvent; infoFlowDa
 
   const showTooltip = useMemo(() => !isContentVisible || isEllipsis, [isContentVisible, isEllipsis]);
 
-  return <Component event={event} contentRef={contentRef} showTooltip={showTooltip} />;
+  const { leftOverflow, middleOverflow, rightOverflow } = useMemo(
+    () =>
+      overflowData ?? {
+        leftOverflow: false,
+        middleOverflow: null,
+        rightOverflow: false,
+      },
+    [overflowData],
+  );
+
+  return (
+    <Component
+      event={event}
+      contentRef={contentRef}
+      showTooltip={showTooltip}
+      showLeftOverflow={leftOverflow}
+      middleOverflowPxLeft={middleOverflow}
+      showRightOverflow={rightOverflow}
+    />
+  );
 };
 EventTile.displayName = 'EventTile';
 
@@ -34,15 +61,82 @@ const DefaultEventTile = ({
   tooltip,
   contentRef,
   showTooltip,
+  showLeftOverflow,
+  middleOverflowPxLeft,
+  showRightOverflow,
 }: {
   event: CalEvent;
   tooltip?: React.ReactNode;
   contentRef?: MutableRefObject<HTMLDivElement | undefined>;
   showTooltip?: boolean;
+  showLeftOverflow?: boolean;
+  middleOverflowPxLeft?: number | null;
+  showRightOverflow?: boolean;
 }) => {
+  const title = useMemo(() => event.title || 'No Title', [event.title]);
+
+  const endTimeDiffDays = useMemo(
+    () => differenceInCalendarDays(event.endTime, event.startTime),
+    [event.startTime, event.endTime],
+  );
+
+  const subtitle = useMemo(
+    () =>
+      `
+    ${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}
+    ${endTimeDiffDays > 0 ? ` (+${endTimeDiffDays} day${endTimeDiffDays > 1 ? 's' : ''})` : ''}
+    `,
+    [event, endTimeDiffDays],
+  );
+
+  const overflowStyle = useMemo(() => {
+    const s: React.CSSProperties = {};
+
+    if (showLeftOverflow) {
+      s.borderLeft = `2px dashed color-mix(in srgb, ${event.bgColor || 'primary.main'} 80%, black)`;
+      s.borderTopLeftRadius = 0;
+      s.borderBottomLeftRadius = 0;
+    }
+
+    if (showRightOverflow) {
+      s.borderRight = `2px dashed color-mix(in srgb, ${event.bgColor || 'primary.main'} 80%, black)`;
+      s.borderTopRightRadius = 0;
+      s.borderBottomRightRadius = 0;
+    }
+
+    return s;
+  }, [event.bgColor, showLeftOverflow, showRightOverflow]);
+
+  const middleOverflow = useMemo(() => {
+    if (middleOverflowPxLeft) {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            left: middleOverflowPxLeft,
+            top: 0,
+            width: '0px',
+            height: '100%',
+            borderRight: `2px dashed color-mix(in srgb, ${event.bgColor || 'primary.main'} 80%, black)`,
+          }}
+        ></div>
+      );
+    }
+
+    return null;
+  }, [event.bgColor, middleOverflowPxLeft]);
+
   const eventContent = useMemo(
     () => (
-      <Container key={event.id} bgcolor={event.bgColor || 'primary.main'} style={{ cursor: 'move' }}>
+      <Container
+        key={event.id}
+        bgcolor={event.bgColor || 'primary.main'}
+        style={{
+          cursor: 'move',
+          ...overflowStyle,
+        }}
+      >
+        {middleOverflow}
         <Box
           ref={contentRef}
           className="handle"
@@ -51,26 +145,24 @@ const DefaultEventTile = ({
           style={{ width: 'fit-content', position: 'sticky', left: 0 }}
         >
           <InnerText fontWeight="bold" color={event.textColor || 'text.primary'}>
-            {event.title}
+            {title}
           </InnerText>
-          <InnerText color={event.textColor || 'text.primary'}>
-            {`${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`}
-          </InnerText>
+          <InnerText color={event.textColor || 'text.primary'}>{subtitle}</InnerText>
         </Box>
       </Container>
     ),
-    [event, contentRef],
+    [contentRef, event.bgColor, event.id, event.textColor, middleOverflow, overflowStyle, subtitle, title],
   );
 
   const eventTooltip = useMemo(
     () =>
       tooltip ?? (
         <Box>
-          <InnerText fontWeight="bold">{event.title}</InnerText>
-          <InnerText>{`${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`}</InnerText>
+          <InnerText fontWeight="bold">{title}</InnerText>
+          <InnerText>{subtitle}</InnerText>
         </Box>
       ),
-    [event, tooltip],
+    [subtitle, title, tooltip],
   );
 
   return (
