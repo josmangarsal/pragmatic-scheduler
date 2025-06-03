@@ -35,6 +35,7 @@ export const EventTile = ({
 
   const { leftOverflow, middleOverflow, rightOverflow } = useMemo(
     () =>
+      // TODO: Hide overflow while dragging
       overflowData ?? {
         leftOverflow: false,
         middleOverflow: null,

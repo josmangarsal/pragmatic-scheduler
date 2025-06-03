@@ -69,7 +69,7 @@ export const useCalcEventPosition = () => {
             ) {
               let fractionOfDivision = 0;
               if (
-                division.endTime <= event.endTime &&
+                division.endTime < event.endTime &&
                 ((nextDivision && nextDivision.startTime >= event.endTime) || !nextDivision)
               ) {
                 fractionOfDivision = Math.max(

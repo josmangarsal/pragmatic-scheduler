@@ -240,6 +240,11 @@ export const TimelineView = () => {
                         dataGridProps: dataGridProps,
                         config: config,
                       }}
+                      overflowData={{
+                        leftOverflow: dataGridProps.leftOverflow,
+                        middleOverflow: dataGridProps.middleOverflow,
+                        rightOverflow: dataGridProps.rightOverflow,
+                      }}
                     />
                   </div>
                 );

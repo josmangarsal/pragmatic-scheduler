@@ -17,7 +17,8 @@ function DailyZoom() {
     activeDate,
     {
       startDate: setMinutes(setHours(startOfToday(), 7), 15),
-      endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1), // BE CAREFUL! multiple of interval time
+      endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1),
+      // BE CAREFUL! multiple of interval time (2 hours)
     },
   );
 
