@@ -145,10 +145,12 @@ const DefaultEventTile = ({
           padding={1}
           style={{ width: 'fit-content', position: 'sticky', left: 0 }}
         >
-          <InnerText fontWeight="bold" color={event.textColor || 'text.primary'}>
+          <InnerText fontWeight="bold" color={event.textColor || 'text.primary'} className="ellipsisText">
             {title}
           </InnerText>
-          <InnerText color={event.textColor || 'text.primary'}>{subtitle}</InnerText>
+          <InnerText color={event.textColor || 'text.primary'} className="ellipsisText">
+            {subtitle}
+          </InnerText>
         </Box>
       </Container>
     ),

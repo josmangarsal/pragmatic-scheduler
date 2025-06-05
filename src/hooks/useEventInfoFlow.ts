@@ -1,17 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { InfoFlowData } from '../types';
 import { useEllipsisObserver } from './useEllipsisObserver';
+import { useVisibilityObserver } from './useVisibilityObserver';
 
 export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
   const contentRef = useRef<HTMLDivElement>();
-
-  const [isContentVisible, setIsContentVisible] = useState(true);
 
   const container = useMemo(() => infoFlowData?.scrollRef ?? null, [infoFlowData]);
 
   const dataGridProps = useMemo(() => infoFlowData?.dataGridProps ?? null, [infoFlowData]);
 
   const config = useMemo(() => infoFlowData?.config ?? null, [infoFlowData]);
+
+  const { isVisible: isContentVisible } = useVisibilityObserver({
+    root: container,
+    targetRef: contentRef,
+  });
 
   const eventStartX = useMemo(() => {
     if (dataGridProps && config) {
@@ -26,18 +30,6 @@ export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
     }
     return 0;
   }, [config, dataGridProps]);
-
-  const checkVisibility = useCallback((container: HTMLDivElement, content: HTMLDivElement) => {
-    const offset = -8;
-
-    const containerRect = container.getBoundingClientRect();
-    const itemRect = content.getBoundingClientRect();
-
-    const completelyVisible =
-      itemRect.left >= containerRect.left + offset && itemRect.right <= containerRect.right - offset;
-
-    setIsContentVisible(completelyVisible);
-  }, []);
 
   const moveContent = useCallback(
     (container: HTMLDivElement, content: HTMLDivElement) => {
@@ -65,12 +57,9 @@ export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
     const content = contentRef?.current;
     if (!container || !content) return;
 
-    // Check if the event is visible in the scroll container
-    checkVisibility(container, content);
-
     // Move event content inside the event box
     moveContent(container, content);
-  }, [checkVisibility, container, moveContent]);
+  }, [container, moveContent]);
 
   useEffect(() => {
     if (!container) return;
