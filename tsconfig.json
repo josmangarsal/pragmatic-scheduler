@@ -6,11 +6,19 @@
     "outDir": "./dist",
     "strict": true,
     "downlevelIteration": true,
-    "lib": ["es5", "dom", "dom.iterable", "esnext"],
+    "lib": [
+      "es5",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "typeRoots": ["./src/@types", "./node_modules/@types"],
+    "typeRoots": [
+      "./src/@types",
+      "./node_modules/@types"
+    ],
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
@@ -20,8 +28,14 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "jsxImportSource": "@emotion/react",
     "jsx": "react-jsx"
   },
-  "include": ["src/pragmatic-scheduler.ts"],
-  "exclude": ["node_modules", "src/**/*.test.ts*"]
+  "include": [
+    "src/pragmatic-scheduler.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/*.test.ts*"
+  ]
 }
