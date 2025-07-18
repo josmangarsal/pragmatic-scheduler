@@ -14,6 +14,8 @@ import { useCalcGridPositions } from '../hooks/useCalcGridPositions';
 import { CalEvent } from '../types';
 import { isBefore } from 'date-fns';
 import { dateToPosition } from '../helpers/datePositionHelper';
+import 'overlayscrollbars/overlayscrollbars.css';
+import { OverlayScrollbarsComponent, OverlayScrollbarsComponentRef } from 'overlayscrollbars-react';
 
 export const TimelineView = () => {
   const {
@@ -27,12 +29,15 @@ export const TimelineView = () => {
   } = useContext(SchedulerContext);
 
   const ref = useRef<HTMLDivElement | null>(null);
+  const scrollRefResources = useRef<OverlayScrollbarsComponentRef>(null);
+  const scrollRefEvents = useRef<OverlayScrollbarsComponentRef>(null);
 
   const calcEventPosition = useCalcEventPosition();
   const layoutToCalEvent = useLayoutToCalEvent();
   const gridLayouts = useCalcGridPositions();
 
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const [dragCalEvent, setDragCalEvent] = useState<CalEvent | undefined>();
   const [droppingItem, setDroppingItem] = useState<GridLayout.Layout>({ i: 'droppedItem', w: 4, h: 1, x: 0, y: 0 });
@@ -93,6 +98,22 @@ export const TimelineView = () => {
     }
   }, [activeDate, config.daysToDisplay, end, start]);
 
+  // Lock vertical scroll
+  useEffect(() => {
+    const preventVerticalScroll = (e: WheelEvent) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('wheel', preventVerticalScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', preventVerticalScroll);
+    };
+  }, [loaded]);
+
+  // Use wheel to scroll horizontally in timeline
   useEffect(() => {
     const el = ref.current;
 
@@ -113,6 +134,52 @@ export const TimelineView = () => {
       return () => el.removeEventListener('wheel', onWheel);
     }
   }, []);
+
+  // Observe scroll and update vertical scrollbar position
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const scrollRight = el.scrollWidth - el.clientWidth - el.scrollLeft;
+      const verticalScrollbar = scrollRefEvents.current?.osInstance()?.elements()?.scrollbarVertical?.scrollbar;
+      if (verticalScrollbar) {
+        verticalScrollbar.style.transform = `translateX(-${scrollRight}px)`;
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll);
+
+    return () => {
+      el.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) {
+      setTimeout(() => {
+        setLoaded(true);
+      }, 1000);
+      return;
+    }
+
+    const eventsInstance = scrollRefEvents.current?.osInstance();
+    const resourcesInstance = scrollRefResources.current?.osInstance();
+
+    if (!eventsInstance || !resourcesInstance) return;
+
+    // Handler to sync scroll
+    const handleScroll = () => {
+      const scrollTop = eventsInstance.elements().viewport.scrollTop;
+      resourcesInstance.elements().viewport.scrollTop = scrollTop;
+    };
+
+    eventsInstance.on('scroll', handleScroll);
+
+    return () => {
+      eventsInstance.off('scroll', handleScroll);
+    };
+  }, [loaded]);
 
   const cols = useMemo(() => {
     return totalDivisions * config.divisionParts;
@@ -177,6 +244,13 @@ export const TimelineView = () => {
     [isDraggingOver, updateLayout],
   );
 
+  const maxHeight = '150px';
+
+  const gridWidth = useMemo(
+    () => (cols * config.divisionWidth) / config.divisionParts,
+    [cols, config.divisionParts, config.divisionWidth],
+  );
+
   return (
     <Box>
       {/* top row */}
@@ -189,67 +263,85 @@ export const TimelineView = () => {
           minWidth={config.resourceColumnWidth}
         >
           <ResourceHeader />
-          {resources.map((resource) => (
-            <ResourceCell key={resource.id} resource={resource} />
-          ))}
+          {/* <div style={{maxHeight: maxHeight, overflowY: 'hidden'}}> */}
+          <OverlayScrollbarsComponent
+            ref={scrollRefResources}
+            defer
+            options={{ overflow: { x: 'hidden', y: 'hidden' } }}
+            style={{ maxHeight: maxHeight }}
+          >
+            {resources.map((resource) => (
+              <ResourceCell key={resource.id} resource={resource} />
+            ))}
+            {/* </div> */}
+          </OverlayScrollbarsComponent>
         </Box>
         {/* right side column that scrolls */}
         <Box position="relative" flex={1} overflow="auto" ref={ref}>
           {config.unAssignedRows ? <UnAssignedEvents onDragStart={handleUnassignedDragStart} /> : null}
           <HeaderRow days={days} />
-          <GridLayout
-            className="layout"
-            margin={[0, 0]}
-            compactType={null}
-            allowOverlap={true}
-            cols={cols}
-            rowHeight={config.rowHeight}
-            width={(cols * config.divisionWidth) / config.divisionParts}
-            isBounded={true}
-            isDroppable={true}
-            onDrop={handleDrop}
-            onDropDragOver={handleDropDragOver}
-            droppingItem={droppingItem}
-            onDragStop={handleDragResizeStop}
-            onResizeStop={handleDragResizeStop}
-            layout={layouts}
-            onLayoutChange={handleLayoutChange}
-            draggableCancel=".not-draggable"
+          {/* <div style={{maxHeight: maxHeight, overflowY: 'auto', width: gridWidth, overflowX: 'hidden'}}> */}
+          <OverlayScrollbarsComponent
+            ref={scrollRefEvents}
+            defer
+            options={{ overflow: { x: 'hidden', y: 'scroll' } }}
+            style={{ maxHeight: maxHeight, width: gridWidth }}
           >
-            {gridLayouts.map((layout) => {
-              return (
-                <div key={layout.i}>
-                  <Box width={config.divisionWidth} height={config.rowHeight * layout.h - 2}>
-                    <GridCell layout={layout} />
-                  </Box>
-                </div>
-              );
-            })}
-            {events
-              .filter((e) => e.resourceId)
-              .sort((a, b) => (a.allowOverlap ? 0 : 1) - (b.allowOverlap ? 0 : 1))
-              .map((event) => {
-                const dataGridProps = calcEventPosition(event);
+            <GridLayout
+              className="layout"
+              margin={[0, 0]}
+              compactType={null}
+              allowOverlap={true}
+              cols={cols}
+              rowHeight={config.rowHeight}
+              width={gridWidth}
+              isBounded={true}
+              isDroppable={true}
+              onDrop={handleDrop}
+              onDropDragOver={handleDropDragOver}
+              droppingItem={droppingItem}
+              onDragStop={handleDragResizeStop}
+              onResizeStop={handleDragResizeStop}
+              layout={layouts}
+              onLayoutChange={handleLayoutChange}
+              draggableCancel=".not-draggable"
+            >
+              {gridLayouts.map((layout) => {
                 return (
-                  <div key={event.id} data-grid={dataGridProps}>
-                    <EventTile
-                      key={event.id}
-                      event={event}
-                      infoFlowData={{
-                        scrollRef: ref.current,
-                        dataGridProps: dataGridProps,
-                        config: config,
-                      }}
-                      overflowData={{
-                        leftOverflow: dataGridProps.leftOverflow,
-                        middleOverflow: dataGridProps.middleOverflow,
-                        rightOverflow: dataGridProps.rightOverflow,
-                      }}
-                    />
+                  <div key={layout.i}>
+                    <Box width={config.divisionWidth} height={config.rowHeight * layout.h - 2}>
+                      <GridCell layout={layout} />
+                    </Box>
                   </div>
                 );
               })}
-          </GridLayout>
+              {events
+                .filter((e) => e.resourceId)
+                .sort((a, b) => (a.allowOverlap ? 0 : 1) - (b.allowOverlap ? 0 : 1))
+                .map((event) => {
+                  const dataGridProps = calcEventPosition(event);
+                  return (
+                    <div key={event.id} data-grid={dataGridProps}>
+                      <EventTile
+                        key={event.id}
+                        event={event}
+                        infoFlowData={{
+                          scrollRef: ref.current,
+                          dataGridProps: dataGridProps,
+                          config: config,
+                        }}
+                        overflowData={{
+                          leftOverflow: dataGridProps.leftOverflow,
+                          middleOverflow: dataGridProps.middleOverflow,
+                          rightOverflow: dataGridProps.rightOverflow,
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+            </GridLayout>
+            {/* </div> */}
+          </OverlayScrollbarsComponent>
         </Box>
       </Box>
     </Box>
