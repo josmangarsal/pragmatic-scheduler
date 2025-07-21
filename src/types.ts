@@ -47,6 +47,7 @@ export type Config = {
   divisionParts: number;
   daysToDisplay: number;
   previousDaysToDisplay?: number;
+  rowsToDisplay?: number;
 };
 
 export type GridCellLayout = GridLayout.Layout & { day: ScheduleDay; division: Division; resourceId: string };

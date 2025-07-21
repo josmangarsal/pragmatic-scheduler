@@ -244,7 +244,10 @@ export const TimelineView = () => {
     [isDraggingOver, updateLayout],
   );
 
-  const maxHeight = '150px';
+  const maxHeight = useMemo(
+    () => (config.rowsToDisplay ? config.rowsToDisplay * config.rowHeight : '100%'),
+    [config.rowsToDisplay, config.rowHeight],
+  );
 
   const gridWidth = useMemo(
     () => (cols * config.divisionWidth) / config.divisionParts,
@@ -263,7 +266,6 @@ export const TimelineView = () => {
           minWidth={config.resourceColumnWidth}
         >
           <ResourceHeader />
-          {/* <div style={{maxHeight: maxHeight, overflowY: 'hidden'}}> */}
           <OverlayScrollbarsComponent
             ref={scrollRefResources}
             defer
@@ -273,14 +275,12 @@ export const TimelineView = () => {
             {resources.map((resource) => (
               <ResourceCell key={resource.id} resource={resource} />
             ))}
-            {/* </div> */}
           </OverlayScrollbarsComponent>
         </Box>
         {/* right side column that scrolls */}
         <Box position="relative" flex={1} overflow="auto" ref={ref}>
           {config.unAssignedRows ? <UnAssignedEvents onDragStart={handleUnassignedDragStart} /> : null}
           <HeaderRow days={days} />
-          {/* <div style={{maxHeight: maxHeight, overflowY: 'auto', width: gridWidth, overflowX: 'hidden'}}> */}
           <OverlayScrollbarsComponent
             ref={scrollRefEvents}
             defer
@@ -340,7 +340,6 @@ export const TimelineView = () => {
                   );
                 })}
             </GridLayout>
-            {/* </div> */}
           </OverlayScrollbarsComponent>
         </Box>
       </Box>

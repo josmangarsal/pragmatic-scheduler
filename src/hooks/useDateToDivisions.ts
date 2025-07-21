@@ -1,5 +1,5 @@
 import { DivisionDetail, ScheduleDay } from '../types';
-import { setHours, setMinutes, startOfDay } from 'date-fns';
+import { setHours, setMinutes } from 'date-fns';
 
 export const useDateToDivisions = () => {
   const dateToDivisions = (date: Date, divisionDetails: DivisionDetail[]): ScheduleDay => {

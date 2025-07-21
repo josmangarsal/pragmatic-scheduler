@@ -8,6 +8,7 @@ export const defaultConfig: Config = {
   divisionParts: 4,
   daysToDisplay: 3,
   previousDaysToDisplay: 1,
+  rowsToDisplay: 0,
 };
 
 export const defaultDivisionDetails: DivisionDetail[] = [
