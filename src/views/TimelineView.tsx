@@ -155,6 +155,27 @@ export const TimelineView = () => {
     };
   }, []);
 
+  // Prevent scrollbar wheel event
+  useEffect(() => {
+    const scrollbarEventElement = scrollRefEvents.current?.osInstance()?.elements()?.scrollEventElement;
+
+    const onWheel = () => {
+      if (scrollbarEventElement instanceof HTMLElement) {
+        scrollbarEventElement.scrollTop = scrollbarEventElement.scrollTop + 0;
+      }
+    };
+    console.log('elements', scrollRefEvents.current?.osInstance()?.elements());
+    if (scrollbarEventElement) {
+      scrollbarEventElement.addEventListener('wheel', onWheel, { passive: false });
+    }
+
+    return () => {
+      if (scrollbarEventElement) {
+        scrollbarEventElement.removeEventListener('wheel', onWheel);
+      }
+    };
+  }, [loaded, scrollRefEvents]);
+
   useEffect(() => {
     if (!loaded) {
       setTimeout(() => {
