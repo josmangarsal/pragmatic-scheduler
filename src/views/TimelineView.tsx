@@ -164,7 +164,7 @@ export const TimelineView = () => {
         scrollbarEventElement.scrollTop = scrollbarEventElement.scrollTop + 0;
       }
     };
-    console.log('elements', scrollRefEvents.current?.osInstance()?.elements());
+
     if (scrollbarEventElement) {
       scrollbarEventElement.addEventListener('wheel', onWheel, { passive: false });
     }
