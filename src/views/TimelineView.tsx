@@ -150,8 +150,13 @@ export const TimelineView = () => {
 
     el.addEventListener('scroll', handleScroll);
 
+    const resizeObserver = new ResizeObserver(handleScroll);
+    resizeObserver.observe(el);
+
     return () => {
       el.removeEventListener('scroll', handleScroll);
+
+      resizeObserver.disconnect();
     };
   }, []);
 
