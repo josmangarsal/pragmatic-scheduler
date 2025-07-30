@@ -280,6 +280,31 @@ export const TimelineView = () => {
     [cols, config.divisionParts, config.divisionWidth],
   );
 
+  // Observe events container to recalculate grid width to fit screen
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const recalcGridWidth = () => {
+      if (gridWidth < el.clientWidth) {
+        const calculatedDivisionWidth = el.clientWidth / totalDivisions;
+        // Custom event to link with useSchedulerViewConfig
+        window.dispatchEvent(
+          new CustomEvent('timelineview:resize:calculatedDivisionWidth', { detail: { calculatedDivisionWidth } }),
+        );
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(recalcGridWidth);
+    resizeObserver.observe(el);
+
+    recalcGridWidth();
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [cols, config.divisionParts, gridWidth, totalDivisions]);
+
   return (
     <Box>
       {/* top row */}
@@ -294,7 +319,6 @@ export const TimelineView = () => {
           <ResourceHeader />
           <OverlayScrollbarsComponent
             ref={scrollRefResources}
-            defer
             options={{ overflow: { x: 'hidden', y: 'hidden' } }}
             style={{ maxHeight: maxHeight }}
           >
@@ -309,7 +333,6 @@ export const TimelineView = () => {
           <HeaderRow days={days} />
           <OverlayScrollbarsComponent
             ref={scrollRefEvents}
-            defer
             options={{ overflow: { x: 'hidden', y: 'scroll' } }}
             style={{ maxHeight: maxHeight, width: gridWidth }}
           >

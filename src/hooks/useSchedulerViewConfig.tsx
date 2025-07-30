@@ -1,8 +1,31 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Config } from '../types';
 import { defaultConfig } from '../constants/defaults';
 
 export const useSchedulerViewConfig = ({ daysToDisplay = 3, interval = 2, prevDays = 0 }) => {
+  const [calculatedDivisionWidth, setCalculatedDivisionWidth] = useState<number>(0);
+
+  useEffect(() => {
+    // Get calculated value from custom event from TimelineView
+    const handleEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<{ calculatedDivisionWidth: number }>;
+
+      if (customEvent?.detail) {
+        setCalculatedDivisionWidth(customEvent.detail.calculatedDivisionWidth);
+      }
+    };
+
+    window.addEventListener('timelineview:resize:calculatedDivisionWidth', handleEvent);
+
+    return () => {
+      window.removeEventListener('timelineview:resize:calculatedDivisionWidth', handleEvent);
+    };
+  }, []);
+
+  useEffect(() => {
+    setCalculatedDivisionWidth(0); // Reset on interval change
+  }, [interval]);
+
   const config: Config = useMemo(() => {
     const currentConfig = { ...defaultConfig };
 
@@ -25,12 +48,16 @@ export const useSchedulerViewConfig = ({ daysToDisplay = 3, interval = 2, prevDa
       default:
     }
 
+    if (calculatedDivisionWidth) {
+      currentConfig.divisionWidth = calculatedDivisionWidth;
+    }
+
     currentConfig.previousDaysToDisplay = prevDays;
     currentConfig.daysToDisplay += currentConfig.previousDaysToDisplay;
     currentConfig.unAssignedRows = 0;
 
     return currentConfig;
-  }, [daysToDisplay, interval, prevDays]);
+  }, [calculatedDivisionWidth, daysToDisplay, interval, prevDays]);
 
   return {
     currentInterval: interval,
