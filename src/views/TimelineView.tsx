@@ -330,7 +330,7 @@ export const TimelineView = () => {
         {/* right side column that scrolls */}
         <Box position="relative" flex={1} overflow="auto" ref={ref}>
           {config.unAssignedRows ? <UnAssignedEvents onDragStart={handleUnassignedDragStart} /> : null}
-          <HeaderRow days={days} />
+          <HeaderRow days={days} eventsBoxElement={ref.current} />
           <OverlayScrollbarsComponent
             ref={scrollRefEvents}
             options={{ overflow: { x: 'hidden', y: 'scroll' } }}

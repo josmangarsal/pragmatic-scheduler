@@ -1,11 +1,16 @@
 /** @jsxImportSource @emotion/react */
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { SchedulerContext } from './Scheduler';
 import { IconButton } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import styled from '@emotion/styled';
+import LockClockRoundedIcon from '@mui/icons-material/LockClockRounded';
+import LockClockOutlinedIcon from '@mui/icons-material/LockClockOutlined';
+import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
+import { dateToPosition } from '../helpers/datePositionHelper';
+import { setHours, startOfToday } from 'date-fns';
 
 interface HeaderProps {
   left?: string;
@@ -25,7 +30,7 @@ const FloatingHeaderControl = styled.div<HeaderProps>`
   }
 `;
 
-export const HeaderControls = () => {
+export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDivElement | null }) => {
   const {
     extendFrom,
     extendTo,
@@ -33,12 +38,18 @@ export const HeaderControls = () => {
     ExtendRightIconButton,
     ScrollLeftIconButton,
     ScrollRightIconButton,
+    goNow,
+    GoNowIconButton,
+    lockNow,
+    LockNowIconButton,
+    calendarBounds: { start, end },
   } = useContext(SchedulerContext);
 
   const ref = useRef<HTMLDivElement>(null);
 
   const [visibleFirstDay, setVisibleFirstDay] = useState(false);
   const [visibleLastDay, setVisibleLastDay] = useState(false);
+  const [nowLocked, setNowLocked] = useState(false);
 
   useEffect(() => {
     if (ref) {
@@ -78,6 +89,43 @@ export const HeaderControls = () => {
     }
   }, []);
 
+  const showGoNow = useMemo(() => {
+    if (!goNow) return false;
+    // if the current date is within the visible range
+    if (start < new Date() && end > new Date()) return true;
+    return false;
+  }, [goNow, start, end]);
+
+  const handleGoNow = useCallback(() => {
+    if (eventsBoxElement) {
+      eventsBoxElement.scrollTo({
+        left: dateToPosition(new Date(), start, end, eventsBoxElement.scrollWidth) - eventsBoxElement.clientWidth / 2,
+        behavior: 'smooth',
+      });
+    }
+  }, [end, eventsBoxElement, start]);
+
+  const handleLockNow = useCallback(() => {
+    handleGoNow();
+    setNowLocked((prev) => !prev);
+  }, [handleGoNow]);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    if (nowLocked) {
+      intervalId = setInterval(() => {
+        handleGoNow();
+      }, 1000 * 10);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [handleGoNow, nowLocked]);
+
   return (
     <div
       ref={ref}
@@ -90,7 +138,7 @@ export const HeaderControls = () => {
     >
       {visibleFirstDay && extendFrom && (
         // + ...
-        <FloatingHeaderControl left="0px">
+        <FloatingHeaderControl right="120px">
           {ExtendLeftIconButton ? (
             <ExtendLeftIconButton onClick={extendFrom} />
           ) : (
@@ -115,7 +163,7 @@ export const HeaderControls = () => {
       )}
       {!visibleFirstDay && (
         // << ...
-        <FloatingHeaderControl left="0px">
+        <FloatingHeaderControl right="120px">
           {ScrollLeftIconButton ? (
             <ScrollLeftIconButton onClick={scrollLeft} />
           ) : (
@@ -133,6 +181,28 @@ export const HeaderControls = () => {
           ) : (
             <IconButton onClick={scrollRight}>
               <ArrowCircleRightIcon fontSize="large" />
+            </IconButton>
+          )}
+        </FloatingHeaderControl>
+      )}
+      {showGoNow && (
+        <FloatingHeaderControl right="80px">
+          {GoNowIconButton ? (
+            <GoNowIconButton onClick={handleGoNow} />
+          ) : (
+            <IconButton onClick={handleGoNow}>
+              <ScheduleRoundedIcon fontSize="large" />
+            </IconButton>
+          )}
+        </FloatingHeaderControl>
+      )}
+      {lockNow && (
+        <FloatingHeaderControl right="40px">
+          {LockNowIconButton ? (
+            <LockNowIconButton locked={nowLocked} onClick={handleLockNow} />
+          ) : (
+            <IconButton onClick={handleLockNow}>
+              {nowLocked ? <LockClockRoundedIcon fontSize="large" /> : <LockClockOutlinedIcon fontSize="large" />}
             </IconButton>
           )}
         </FloatingHeaderControl>

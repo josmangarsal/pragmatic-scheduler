@@ -46,6 +46,10 @@ export const SchedulerContext = React.createContext<{
   ExtendRightIconButton?: React.FC<{ onClick: () => void }>;
   ScrollLeftIconButton?: React.FC<{ onClick: () => void }>;
   ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
+  goNow?: boolean;
+  lockNow?: boolean;
+  GoNowIconButton?: React.FC<{ onClick: () => void }>;
+  LockNowIconButton?: React.FC<{ locked: boolean; onClick: () => void }>;
 }>({
   activeDate: new Date(),
   days: [],
@@ -82,6 +86,10 @@ export const Scheduler = ({
   ScrollRightIconButton,
   firstDay: firstDayProp,
   lastDay: lastDayProp,
+  goNow = false,
+  lockNow = false,
+  GoNowIconButton,
+  LockNowIconButton,
 }: {
   activeDate: Date;
   divisionDetails?: DivisionDetail[];
@@ -104,6 +112,10 @@ export const Scheduler = ({
   ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
   firstDay?: Date;
   lastDay?: Date;
+  goNow?: boolean;
+  lockNow?: boolean;
+  GoNowIconButton?: React.FC<{ onClick: () => void }>;
+  LockNowIconButton?: React.FC<{ onClick: () => void }>;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
 
@@ -181,6 +193,10 @@ export const Scheduler = ({
         ExtendRightIconButton: ExtendRightIconButton,
         ScrollLeftIconButton: ScrollLeftIconButton,
         ScrollRightIconButton: ScrollRightIconButton,
+        goNow: goNow,
+        lockNow: lockNow,
+        GoNowIconButton: GoNowIconButton,
+        LockNowIconButton: LockNowIconButton,
       }}
     >
       <Container>

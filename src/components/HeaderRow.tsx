@@ -8,7 +8,13 @@ import { useUnassignedEventPosition } from '../hooks/useUnassignedEventPosition'
 import { EventTile } from './EventTile';
 import { HeaderControls } from './HeaderControls';
 
-export const HeaderRow = ({ days }: { days: ScheduleDay[] }) => {
+export const HeaderRow = ({
+  days,
+  eventsBoxElement,
+}: {
+  days: ScheduleDay[];
+  eventsBoxElement: HTMLDivElement | null;
+}) => {
   const {
     HeaderRow: HeaderRowOverride,
     config: { rowHeight },
@@ -16,7 +22,7 @@ export const HeaderRow = ({ days }: { days: ScheduleDay[] }) => {
 
   return (
     <>
-      <HeaderControls />
+      <HeaderControls eventsBoxElement={eventsBoxElement} />
       <Box flex={1} display="flex" minHeight={rowHeight} maxHeight={rowHeight}>
         {/* Add columns for each day */}
         {HeaderRowOverride ? (
