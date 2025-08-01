@@ -23,8 +23,8 @@ export const useSchedulerViewConfig = ({ daysToDisplay = 3, interval = 2, prevDa
   }, []);
 
   useEffect(() => {
-    setCalculatedDivisionWidth(0); // Reset on interval change
-  }, [interval]);
+    setCalculatedDivisionWidth(0); // Reset on view change
+  }, [interval, daysToDisplay, prevDays]);
 
   const config: Config = useMemo(() => {
     const currentConfig = { ...defaultConfig };

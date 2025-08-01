@@ -10,7 +10,6 @@ import LockClockRoundedIcon from '@mui/icons-material/LockClockRounded';
 import LockClockOutlinedIcon from '@mui/icons-material/LockClockOutlined';
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import { dateToPosition } from '../helpers/datePositionHelper';
-import { setHours, startOfToday } from 'date-fns';
 
 interface HeaderProps {
   left?: string;
@@ -126,6 +125,35 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
     };
   }, [handleGoNow, nowLocked]);
 
+  const leftSidePx = useMemo(() => {
+    if (showGoNow && lockNow) {
+      return '120px';
+    }
+    if (showGoNow) {
+      return '80px';
+    }
+    return '40px';
+  }, [lockNow, showGoNow]);
+
+  const rightSidePx = useMemo(() => '1px', []);
+
+  const nowSidePx = useMemo(() => {
+    if (showGoNow && lockNow) {
+      return '80px';
+    }
+    if (showGoNow) {
+      return '40px';
+    }
+    return '0px';
+  }, [lockNow, showGoNow]);
+
+  const lockSidePx = useMemo(() => {
+    if (showGoNow && lockNow) {
+      return '40px';
+    }
+    return '0px';
+  }, [lockNow, showGoNow]);
+
   return (
     <div
       ref={ref}
@@ -138,7 +166,7 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
     >
       {visibleFirstDay && extendFrom && (
         // + ...
-        <FloatingHeaderControl right="120px">
+        <FloatingHeaderControl right={leftSidePx}>
           {ExtendLeftIconButton ? (
             <ExtendLeftIconButton onClick={extendFrom} />
           ) : (
@@ -151,7 +179,7 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
 
       {visibleLastDay && extendTo && (
         // ... +
-        <FloatingHeaderControl right="1px">
+        <FloatingHeaderControl right={rightSidePx}>
           {ExtendRightIconButton ? (
             <ExtendRightIconButton onClick={extendTo} />
           ) : (
@@ -163,7 +191,7 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
       )}
       {!visibleFirstDay && (
         // << ...
-        <FloatingHeaderControl right="120px">
+        <FloatingHeaderControl right={leftSidePx}>
           {ScrollLeftIconButton ? (
             <ScrollLeftIconButton onClick={scrollLeft} />
           ) : (
@@ -175,7 +203,7 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
       )}
       {!visibleLastDay && (
         // ... >>
-        <FloatingHeaderControl right="1px">
+        <FloatingHeaderControl right={rightSidePx}>
           {ScrollRightIconButton ? (
             <ScrollRightIconButton onClick={scrollRight} />
           ) : (
@@ -186,7 +214,7 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
         </FloatingHeaderControl>
       )}
       {showGoNow && (
-        <FloatingHeaderControl right="80px">
+        <FloatingHeaderControl right={nowSidePx}>
           {GoNowIconButton ? (
             <GoNowIconButton onClick={handleGoNow} />
           ) : (
@@ -196,8 +224,8 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
           )}
         </FloatingHeaderControl>
       )}
-      {lockNow && (
-        <FloatingHeaderControl right="40px">
+      {showGoNow && lockNow && (
+        <FloatingHeaderControl right={lockSidePx}>
           {LockNowIconButton ? (
             <LockNowIconButton locked={nowLocked} onClick={handleLockNow} />
           ) : (
