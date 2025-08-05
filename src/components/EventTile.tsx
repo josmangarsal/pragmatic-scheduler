@@ -26,7 +26,7 @@ export const EventTile = ({
   infoFlowData: InfoFlowData | null;
   overflowData?: OverflowData;
 }) => {
-  const { EventTile: EventTileOverride } = useContext(SchedulerContext);
+  const { EventTile: EventTileOverride, resizingEvent } = useContext(SchedulerContext);
   const Component = EventTileOverride || DefaultEventTile;
 
   const { contentRef, isContentVisible, isEllipsis } = useEventInfoFlow(infoFlowData);
@@ -44,6 +44,18 @@ export const EventTile = ({
     [overflowData],
   );
 
+  const resizingStartTime = useMemo(() => {
+    if (!resizingEvent) return null;
+    if (resizingEvent.id !== event.id) return null;
+    return new Date(resizingEvent.startTime);
+  }, [event.id, resizingEvent]);
+
+  const resizingEndTime = useMemo(() => {
+    if (!resizingEvent) return null;
+    if (resizingEvent.id !== event.id) return null;
+    return new Date(resizingEvent.endTime);
+  }, [event.id, resizingEvent]);
+
   return (
     <Component
       event={event}
@@ -52,12 +64,14 @@ export const EventTile = ({
       showLeftOverflow={leftOverflow}
       middleOverflowPxLeft={middleOverflow}
       showRightOverflow={rightOverflow}
+      resizingStartTime={resizingStartTime}
+      resizingEndTime={resizingEndTime}
     />
   );
 };
 EventTile.displayName = 'EventTile';
 
-const DefaultEventTile = ({
+export const DefaultEventTile = ({
   event,
   tooltip,
   contentRef,
@@ -65,6 +79,8 @@ const DefaultEventTile = ({
   showLeftOverflow,
   middleOverflowPxLeft,
   showRightOverflow,
+  resizingStartTime,
+  resizingEndTime,
 }: {
   event: CalEvent;
   tooltip?: React.ReactNode;
@@ -73,21 +89,20 @@ const DefaultEventTile = ({
   showLeftOverflow?: boolean;
   middleOverflowPxLeft?: number | null;
   showRightOverflow?: boolean;
+  resizingStartTime?: Date | null;
+  resizingEndTime?: Date | null;
 }) => {
   const title = useMemo(() => event.title || 'No Title', [event.title]);
 
-  const endTimeDiffDays = useMemo(
-    () => differenceInCalendarDays(event.endTime, event.startTime),
-    [event.startTime, event.endTime],
-  );
+  const endTimeDiffDays = useMemo(() => differenceInCalendarDays(event.endTime, event.startTime), [event]);
 
   const subtitle = useMemo(
     () =>
       `
-    ${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}
+    ${format(resizingStartTime ?? event.startTime, 'HH:mm')} - ${format(resizingEndTime ?? event.endTime, 'HH:mm')}
     ${endTimeDiffDays > 0 ? ` (+${endTimeDiffDays} day${endTimeDiffDays > 1 ? 's' : ''})` : ''}
     `,
-    [event, endTimeDiffDays],
+    [resizingStartTime, event, resizingEndTime, endTimeDiffDays],
   );
 
   const overflowStyle = useMemo(() => {
@@ -145,10 +160,10 @@ const DefaultEventTile = ({
           padding={1}
           style={{ width: 'fit-content', position: 'sticky', left: 0 }}
         >
-          <InnerText fontWeight="bold" color={event.textColor || 'text.primary'} className="ellipsisText">
+          <InnerText fontWeight="bold" color={event.textColor || 'white'} className="ellipsisText">
             {title}
           </InnerText>
-          <InnerText color={event.textColor || 'text.primary'} className="ellipsisText">
+          <InnerText color={event.textColor || 'white'} className="ellipsisText">
             {subtitle}
           </InnerText>
         </Box>

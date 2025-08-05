@@ -15,15 +15,28 @@ function DailyZoom() {
 
   const { controls, currentInterval, extendFrom, extendTo, config, divisionDetails } = useSchedulerIntervals(
     activeDate,
-    {
-      startDate: setMinutes(setHours(startOfToday(), 7), 15),
-      endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1),
-      // BE CAREFUL! multiple of interval time (2 hours)
-    },
+    // {
+    //  // Uncomment to test with dates different that 00:00
+    //   startDate: setMinutes(setHours(startOfToday(), 7), 15),
+    //   endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1),
+    //   // BE CAREFUL! multiple of interval time (2 hours)
+    // },
   );
 
   const handleEventChange = (event: CalEvent) => {
     setEvents((prevEvents) => {
+      // Add new event
+      if (event.id.includes('NewEvent_')) {
+        return [
+          ...prevEvents,
+          {
+            ...event,
+            id: Date.now().toString(), // Generate a unique ID
+          },
+        ];
+      }
+
+      // Update existing event
       const index = prevEvents.findIndex((e) => e.id === event.id);
       const newEvents = [...prevEvents];
       newEvents[index] = event;
@@ -49,11 +62,20 @@ function DailyZoom() {
         events={events}
         divisionDetails={divisionDetails}
         onEventChange={handleEventChange}
-        config={config}
+        config={{
+          ...config,
+          // rowsToDisplay: 2, // uncomment to test with 2 rows and see how scroll works
+        }}
         extendFrom={extendFrom} // don't pass to hide extend button
         extendTo={extendTo}
-        firstDay={setMinutes(setHours(startOfToday(), 7), 15)}
-        lastDay={addDays(setMinutes(setHours(startOfToday(), 19), 15), 1)}
+        // Uncomment to test with dates different that 00:00
+        // firstDay={setMinutes(setHours(startOfToday(), 7), 15)}
+        // lastDay={addDays(setMinutes(setHours(startOfToday(), 19), 15), 1)}
+        // Uncomment to enable go to now buttons
+        // goNow
+        // lockNow
+        // Uncomment to test with dnd creating event
+        dndCreatingEvent
       />
     </>
   );

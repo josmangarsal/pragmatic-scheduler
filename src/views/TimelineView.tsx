@@ -16,6 +16,7 @@ import { isBefore } from 'date-fns';
 import { dateToPosition } from '../helpers/datePositionHelper';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { OverlayScrollbarsComponent, OverlayScrollbarsComponentRef } from 'overlayscrollbars-react';
+import { useCreatingEvent } from '../hooks/useCreatingEvent';
 
 export const TimelineView = () => {
   const {
@@ -26,6 +27,7 @@ export const TimelineView = () => {
     activeDate,
     calendarBounds: { totalDivisions, start, end },
     onEventChange,
+    setResizingEvent,
   } = useContext(SchedulerContext);
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -245,6 +247,10 @@ export const TimelineView = () => {
       // _event: MouseEvent,
       // _element: HTMLElement,
     ) => {
+      if (newItem.i === 'creatingEvent') {
+        return;
+      }
+
       const updatedEvent = layoutToCalEvent(newItem);
       onEventChange?.(updatedEvent);
       // be sure to unset this so that the handleLayoutChange updates the layout
@@ -255,8 +261,10 @@ export const TimelineView = () => {
         // the setTimeout is a hack as sometime it ges into a loop depending on how quickly the event is dropped
         updateLayout(layout);
       });
+
+      setResizingEvent(null);
     },
-    [layoutToCalEvent, onEventChange, updateLayout],
+    [layoutToCalEvent, onEventChange, setResizingEvent, updateLayout],
   );
 
   const handleLayoutChange = useCallback(
@@ -268,6 +276,20 @@ export const TimelineView = () => {
       }
     },
     [isDraggingOver, updateLayout],
+  );
+
+  const handleOnResize: GridLayout.ItemCallback = useCallback(
+    (layout: GridLayout.Layout[], oldItem: GridLayout.Layout, newItem: GridLayout.Layout) => {
+      if (!newItem) return;
+
+      if (newItem.i === 'droppedItem' || newItem.i === 'creatingEvent') {
+        return;
+      }
+
+      const resizedEvent = layoutToCalEvent(newItem);
+      setResizingEvent(resizedEvent);
+    },
+    [layoutToCalEvent, setResizingEvent],
   );
 
   const maxHeight = useMemo(
@@ -304,6 +326,8 @@ export const TimelineView = () => {
       resizeObserver.disconnect();
     };
   }, [cols, config.divisionParts, gridWidth, totalDivisions]);
+
+  const { renderCreatingEvent } = useCreatingEvent({ ref, gridWidth, cols, config });
 
   return (
     <Box>
@@ -354,11 +378,13 @@ export const TimelineView = () => {
               layout={layouts}
               onLayoutChange={handleLayoutChange}
               draggableCancel=".not-draggable"
+              onResize={handleOnResize}
+              onDrag={handleOnResize}
             >
               {gridLayouts.map((layout) => {
                 return (
                   <div key={layout.i}>
-                    <Box width={config.divisionWidth} height={config.rowHeight * layout.h - 2}>
+                    <Box width={config.divisionWidth} height={config.rowHeight * layout.h}>
                       <GridCell layout={layout} />
                     </Box>
                   </div>
@@ -388,6 +414,7 @@ export const TimelineView = () => {
                     </div>
                   );
                 })}
+              {renderCreatingEvent}
             </GridLayout>
           </OverlayScrollbarsComponent>
         </Box>

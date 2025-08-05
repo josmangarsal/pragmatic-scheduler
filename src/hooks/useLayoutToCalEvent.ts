@@ -14,11 +14,20 @@ export const useLayoutToCalEvent = () => {
   const calcResourceRows = useCalcResourceRows();
 
   return useCallback(
-    (layout: GridLayout.Layout): CalEvent => {
-      const event = events.find((event) => event.id === layout?.i);
-      if (!event) {
+    (layout: GridLayout.Layout, creating?: boolean): CalEvent => {
+      let event = events.find((event) => event.id === layout?.i);
+      if (creating) {
+        event = {
+          id: layout.i,
+          title: 'New event',
+          startTime: new Date(), // To be set based on layout
+          endTime: new Date(), // To be set based on layout
+          resourceId: undefined, // To be set based on layout
+        };
+      } else if (!event) {
         throw new Error('Event not found');
       }
+
       let rowCount = 0;
       let resource: Resource | undefined = undefined;
       for (const _resource of resources) {

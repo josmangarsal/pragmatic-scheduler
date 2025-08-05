@@ -7,6 +7,7 @@ import { addDays, endOfDay, isSameDay, startOfDay } from 'date-fns';
 import { defaultConfig, defaultDivisionDetails } from '../constants/defaults';
 import { useDateToDivisions } from '../hooks/useDateToDivisions';
 import { TimelineView } from '../views/TimelineView';
+import noop from 'lodash/noop';
 
 declare module '@mui/material/styles' {
   interface TypographyVariants {
@@ -50,6 +51,9 @@ export const SchedulerContext = React.createContext<{
   lockNow?: boolean;
   GoNowIconButton?: React.FC<{ onClick: () => void }>;
   LockNowIconButton?: React.FC<{ locked: boolean; onClick: () => void }>;
+  resizingEvent: CalEvent | null;
+  setResizingEvent: React.Dispatch<React.SetStateAction<CalEvent | null>>;
+  dndCreatingEvent?: boolean;
 }>({
   activeDate: new Date(),
   days: [],
@@ -57,6 +61,8 @@ export const SchedulerContext = React.createContext<{
   events: [],
   config: defaultConfig,
   calendarBounds: { start: new Date(), end: new Date(), range: 0, totalDivisions: 0 },
+  resizingEvent: null,
+  setResizingEvent: noop,
 });
 
 const Container = styled(Box)(() => ({
@@ -90,6 +96,7 @@ export const Scheduler = ({
   lockNow = false,
   GoNowIconButton,
   LockNowIconButton,
+  dndCreatingEvent = false,
 }: {
   activeDate: Date;
   divisionDetails?: DivisionDetail[];
@@ -116,8 +123,11 @@ export const Scheduler = ({
   lockNow?: boolean;
   GoNowIconButton?: React.FC<{ onClick: () => void }>;
   LockNowIconButton?: React.FC<{ onClick: () => void }>;
+  dndCreatingEvent?: boolean;
 }) => {
   const { dateToDivisions } = useDateToDivisions();
+
+  const [resizingEvent, setResizingEvent] = React.useState<CalEvent | null>(null);
 
   const firstDay = useMemo(
     () => firstDayProp ?? startOfDay(addDays(activeDate, -1 * (config.previousDaysToDisplay ?? 0))),
@@ -197,6 +207,9 @@ export const Scheduler = ({
         lockNow: lockNow,
         GoNowIconButton: GoNowIconButton,
         LockNowIconButton: LockNowIconButton,
+        resizingEvent: resizingEvent,
+        setResizingEvent: setResizingEvent,
+        dndCreatingEvent: dndCreatingEvent,
       }}
     >
       <Container>
