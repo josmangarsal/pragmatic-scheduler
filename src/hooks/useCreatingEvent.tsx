@@ -137,14 +137,32 @@ export const useCreatingEvent = ({
       setCreatingEvent(null);
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        // Cancel creating event
+        isPressed = false;
+
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+
+        setCreatingEvent(null);
+      }
+    };
+
     el.addEventListener('mousedown', handleMouseDown);
     el.addEventListener('mousemove', handleMouseMove);
     el.addEventListener('mouseup', handleMouseUp);
+
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       el.removeEventListener('mousedown', handleMouseDown);
       el.removeEventListener('mousemove', handleMouseMove);
       el.removeEventListener('mouseup', handleMouseUp);
+
+      window.removeEventListener('keydown', handleKeyDown);
 
       if (timeoutId) clearTimeout(timeoutId);
     };
