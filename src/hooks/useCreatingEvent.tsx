@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import GridLayout from 'react-grid-layout';
-import { Config } from '../types';
 import { SchedulerContext } from '../components/Scheduler';
 import { DefaultEventTile } from '../components/EventTile';
 import { useLayoutToCalEvent } from './useLayoutToCalEvent';
@@ -10,19 +9,25 @@ export const useCreatingEvent = ({
   ref,
   gridWidth,
   cols,
-  config,
+  rows,
 }: {
   ref: React.RefObject<HTMLElement>;
   gridWidth: number;
   cols: number;
-  config: Config;
+  rows: number;
 }) => {
   const [creatingEvent, setCreatingEvent] = useState<GridLayout.Layout | null>(null);
 
   const layoutToCalEvent = useLayoutToCalEvent();
   const calcEventPosition = useCalcEventPosition();
 
-  const { EventTile: EventTileOverride, dndCreatingEvent, onEventChange, events } = useContext(SchedulerContext);
+  const {
+    EventTile: EventTileOverride,
+    dndCreatingEvent,
+    onEventChange,
+    config,
+    events,
+  } = useContext(SchedulerContext);
   const Component = EventTileOverride || DefaultEventTile;
 
   const contentRef = useRef<HTMLDivElement>();
@@ -73,6 +78,8 @@ export const useCreatingEvent = ({
       const startRow = Math.floor(startY / config.rowHeight) - 1;
 
       if (startCol < 0 || startRow < 0) return;
+      if (startRow >= rows) return;
+      if (startCol >= cols) return;
 
       if (isCellOccupied(startCol, startCol + 1, startRow)) return;
 
@@ -151,6 +158,7 @@ export const useCreatingEvent = ({
     newEvent,
     onEventChange,
     isCellOccupied,
+    rows,
   ]);
 
   const renderCreatingEvent = useMemo(() => {

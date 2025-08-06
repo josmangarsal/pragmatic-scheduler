@@ -327,7 +327,12 @@ export const TimelineView = () => {
     };
   }, [cols, config.divisionParts, gridWidth, totalDivisions]);
 
-  const { renderCreatingEvent } = useCreatingEvent({ ref, gridWidth, cols, config });
+  const { renderCreatingEvent } = useCreatingEvent({
+    ref: ref,
+    gridWidth: gridWidth,
+    cols: cols,
+    rows: resources.length,
+  });
 
   return (
     <Box>
