@@ -2,14 +2,17 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { SchedulerContext } from './Scheduler';
 import { IconButton } from '@mui/material';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
-import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import styled from '@emotion/styled';
 import LockClockRoundedIcon from '@mui/icons-material/LockClockRounded';
 import LockClockOutlinedIcon from '@mui/icons-material/LockClockOutlined';
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import { dateToPosition } from '../helpers/datePositionHelper';
+import { addDays } from 'date-fns/addDays';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardDoubleArrowLeftRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowLeftRounded';
+import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
+import AddIcon from '@mui/icons-material/Add';
 
 interface HeaderProps {
   left?: string;
@@ -33,6 +36,8 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
   const {
     extendFrom,
     extendTo,
+    changeDates,
+    extendWithScroll,
     ExtendLeftIconButton,
     ExtendRightIconButton,
     ScrollLeftIconButton,
@@ -87,6 +92,54 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
       });
     }
   }, []);
+
+  const moveDatesLeft = useCallback(() => {
+    if (changeDates) {
+      changeDates(addDays(start, -1), addDays(end, -1));
+    }
+  }, [changeDates, start, end]);
+
+  const moveDatesRight = useCallback(() => {
+    if (changeDates) {
+      changeDates(addDays(start, 1), addDays(end, 1));
+    }
+  }, [changeDates, start, end]);
+
+  const showScrollLeft = useMemo(() => {
+    if (extendWithScroll && !changeDates) return true;
+
+    return !visibleFirstDay;
+  }, [changeDates, extendWithScroll, visibleFirstDay]);
+
+  const showScrollRight = useMemo(() => {
+    if (extendWithScroll && !changeDates) return true;
+
+    return !visibleLastDay;
+  }, [changeDates, extendWithScroll, visibleLastDay]);
+
+  const showExtendLeft = useMemo(() => {
+    if (extendWithScroll) return false;
+
+    return visibleFirstDay && extendFrom;
+  }, [extendFrom, extendWithScroll, visibleFirstDay]);
+
+  const showExtendRight = useMemo(() => {
+    if (extendWithScroll) return false;
+
+    return visibleLastDay && extendTo;
+  }, [extendTo, extendWithScroll, visibleLastDay]);
+
+  const showMoveDatesLeft = useMemo(() => {
+    if (!extendWithScroll) return false;
+
+    return visibleFirstDay && changeDates;
+  }, [changeDates, extendWithScroll, visibleFirstDay]);
+
+  const showMoveDatesRight = useMemo(() => {
+    if (!extendWithScroll) return false;
+
+    return visibleLastDay && changeDates;
+  }, [changeDates, extendWithScroll, visibleLastDay]);
 
   const showGoNow = useMemo(() => {
     if (!goNow) return false;
@@ -164,51 +217,74 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
         zIndex: 10,
       }}
     >
-      {visibleFirstDay && extendFrom && (
+      {showScrollLeft && (
+        // < ...
+        <FloatingHeaderControl right={leftSidePx}>
+          {ScrollLeftIconButton ? (
+            <ScrollLeftIconButton onClick={scrollLeft} disabled={visibleFirstDay} />
+          ) : (
+            <IconButton onClick={scrollLeft} disabled={visibleFirstDay}>
+              <KeyboardArrowLeftIcon fontSize="large" />
+            </IconButton>
+          )}
+        </FloatingHeaderControl>
+      )}
+      {showExtendLeft && extendFrom && (
         // + ...
         <FloatingHeaderControl right={leftSidePx}>
           {ExtendLeftIconButton ? (
             <ExtendLeftIconButton onClick={extendFrom} />
           ) : (
             <IconButton onClick={extendFrom}>
-              <AddCircleIcon fontSize="large" />
+              <AddIcon fontSize="large" />
             </IconButton>
           )}
         </FloatingHeaderControl>
       )}
-
-      {visibleLastDay && extendTo && (
+      {showMoveDatesLeft && (
+        // << ...
+        <FloatingHeaderControl right={leftSidePx}>
+          {ExtendLeftIconButton ? (
+            <ExtendLeftIconButton onClick={moveDatesLeft} />
+          ) : (
+            <IconButton onClick={moveDatesLeft}>
+              <KeyboardDoubleArrowLeftRoundedIcon fontSize="large" />
+            </IconButton>
+          )}
+        </FloatingHeaderControl>
+      )}
+      {showScrollRight && (
+        // ... >
+        <FloatingHeaderControl right={rightSidePx}>
+          {ScrollRightIconButton ? (
+            <ScrollRightIconButton onClick={scrollRight} disabled={visibleLastDay} />
+          ) : (
+            <IconButton onClick={scrollRight} disabled={visibleLastDay}>
+              <KeyboardArrowRightIcon fontSize="large" />
+            </IconButton>
+          )}
+        </FloatingHeaderControl>
+      )}
+      {showExtendRight && extendTo && (
         // ... +
         <FloatingHeaderControl right={rightSidePx}>
           {ExtendRightIconButton ? (
             <ExtendRightIconButton onClick={extendTo} />
           ) : (
             <IconButton onClick={extendTo}>
-              <AddCircleIcon fontSize="large" />
+              <AddIcon fontSize="large" />
             </IconButton>
           )}
         </FloatingHeaderControl>
       )}
-      {!visibleFirstDay && (
-        // << ...
-        <FloatingHeaderControl right={leftSidePx}>
-          {ScrollLeftIconButton ? (
-            <ScrollLeftIconButton onClick={scrollLeft} />
-          ) : (
-            <IconButton onClick={scrollLeft}>
-              <ArrowCircleLeftIcon fontSize="large" />
-            </IconButton>
-          )}
-        </FloatingHeaderControl>
-      )}
-      {!visibleLastDay && (
+      {showMoveDatesRight && (
         // ... >>
         <FloatingHeaderControl right={rightSidePx}>
-          {ScrollRightIconButton ? (
-            <ScrollRightIconButton onClick={scrollRight} />
+          {ExtendRightIconButton ? (
+            <ExtendRightIconButton onClick={moveDatesRight} />
           ) : (
-            <IconButton onClick={scrollRight}>
-              <ArrowCircleRightIcon fontSize="large" />
+            <IconButton onClick={moveDatesRight}>
+              <KeyboardDoubleArrowRightRoundedIcon fontSize="large" />
             </IconButton>
           )}
         </FloatingHeaderControl>

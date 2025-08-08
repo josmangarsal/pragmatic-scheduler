@@ -7,7 +7,7 @@ export const useSchedulerIntervals = (
   activeDate: Date,
   { startDate, setStartDate, endDate, setEndDate, interval }: SchedulerViewControlsProps = {},
 ) => {
-  const { controls, extendFrom, extendTo, ...viewConfigValues } = useSchedulerViewControls(activeDate, {
+  const { controls, extendFrom, extendTo, changeDates, ...viewConfigValues } = useSchedulerViewControls(activeDate, {
     startDate,
     setStartDate,
     endDate,
@@ -22,6 +22,7 @@ export const useSchedulerIntervals = (
     currentInterval,
     extendFrom,
     extendTo,
+    changeDates,
     config,
     divisionDetails,
   };

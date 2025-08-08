@@ -43,10 +43,12 @@ export const SchedulerContext = React.createContext<{
   EventTile?: React.FC<{ event: CalEvent }>;
   extendFrom?: () => void;
   extendTo?: () => void;
+  changeDates?: (start: Date, end: Date) => void;
+  extendWithScroll?: boolean;
   ExtendLeftIconButton?: React.FC<{ onClick: () => void }>;
   ExtendRightIconButton?: React.FC<{ onClick: () => void }>;
-  ScrollLeftIconButton?: React.FC<{ onClick: () => void }>;
-  ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
+  ScrollLeftIconButton?: React.FC<{ onClick: () => void; disabled?: boolean }>;
+  ScrollRightIconButton?: React.FC<{ onClick: () => void; disabled?: boolean }>;
   goNow?: boolean;
   lockNow?: boolean;
   GoNowIconButton?: React.FC<{ onClick: () => void }>;
@@ -86,6 +88,8 @@ export const Scheduler = ({
   EventTile,
   extendFrom,
   extendTo,
+  extendWithScroll,
+  changeDates,
   ExtendLeftIconButton,
   ExtendRightIconButton,
   ScrollLeftIconButton,
@@ -113,10 +117,12 @@ export const Scheduler = ({
   EventTile?: React.FC<{ event: CalEvent }>;
   extendFrom?: () => void;
   extendTo?: () => void;
+  changeDates?: (start: Date, end: Date) => void;
+  extendWithScroll?: boolean;
   ExtendLeftIconButton?: React.FC<{ onClick: () => void }>;
   ExtendRightIconButton?: React.FC<{ onClick: () => void }>;
-  ScrollLeftIconButton?: React.FC<{ onClick: () => void }>;
-  ScrollRightIconButton?: React.FC<{ onClick: () => void }>;
+  ScrollLeftIconButton?: React.FC<{ onClick: () => void; disabled?: boolean }>;
+  ScrollRightIconButton?: React.FC<{ onClick: () => void; disabled?: boolean }>;
   firstDay?: Date;
   lastDay?: Date;
   goNow?: boolean;
@@ -199,6 +205,8 @@ export const Scheduler = ({
         EventTile: EventTile,
         extendFrom: extendFrom,
         extendTo: extendTo,
+        changeDates: changeDates,
+        extendWithScroll: extendWithScroll,
         ExtendLeftIconButton: ExtendLeftIconButton,
         ExtendRightIconButton: ExtendRightIconButton,
         ScrollLeftIconButton: ScrollLeftIconButton,

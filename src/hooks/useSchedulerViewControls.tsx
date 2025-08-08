@@ -101,6 +101,14 @@ export const useSchedulerViewControls = (
     setCurrentEndDate(addDays(currentEndDate, 1));
   }, [currentEndDate, setCurrentEndDate]);
 
+  const changeDates = useCallback(
+    (newStartDate: Date, newEndDate: Date) => {
+      setCurrentStartDate(newStartDate);
+      setCurrentEndDate(newEndDate);
+    },
+    [setCurrentStartDate, setCurrentEndDate],
+  );
+
   const handleChangeInterval = useCallback((event: SelectChangeEvent) => {
     setCurrentInterval(Number(event.target.value));
   }, []);
@@ -186,5 +194,6 @@ export const useSchedulerViewControls = (
     prevDays: currentPrevDays,
     extendFrom: extendFrom,
     extendTo: extendTo,
+    changeDates: changeDates,
   };
 };

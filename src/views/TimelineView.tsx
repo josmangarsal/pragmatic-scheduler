@@ -17,6 +17,7 @@ import { dateToPosition } from '../helpers/datePositionHelper';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { OverlayScrollbarsComponent, OverlayScrollbarsComponentRef } from 'overlayscrollbars-react';
 import { useCreatingEvent } from '../hooks/useCreatingEvent';
+import { useScrollLoading } from '../hooks/useScrollLoading';
 
 export const TimelineView = () => {
   const {
@@ -334,6 +335,8 @@ export const TimelineView = () => {
     rows: resources.length,
   });
 
+  const { ScrollReboundLoader } = useScrollLoading({ scrollRef: ref });
+
   return (
     <Box>
       {/* top row */}
@@ -390,7 +393,7 @@ export const TimelineView = () => {
                 return (
                   <div key={layout.i}>
                     <Box width={config.divisionWidth} height={config.rowHeight * layout.h}>
-                      <GridCell layout={layout} />
+                      <GridCell layout={layout} ScrollReboundLoader={ScrollReboundLoader} />
                     </Box>
                   </div>
                 );

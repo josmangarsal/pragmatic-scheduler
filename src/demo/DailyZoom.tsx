@@ -13,15 +13,16 @@ function DailyZoom() {
   // second param (month) start from 0 jan
   const [events, setEvents] = useState<CalEvent[]>(rawEvents);
 
-  const { controls, currentInterval, extendFrom, extendTo, config, divisionDetails } = useSchedulerIntervals(
-    activeDate,
-    // {
-    //  // Uncomment to test with dates different that 00:00
-    //   startDate: setMinutes(setHours(startOfToday(), 7), 15),
-    //   endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1),
-    //   // BE CAREFUL! multiple of interval time (2 hours)
-    // },
-  );
+  const { controls, currentInterval, extendFrom, extendTo, changeDates, config, divisionDetails } =
+    useSchedulerIntervals(
+      activeDate,
+      // {
+      //  // Uncomment to test with dates different that 00:00
+      //   startDate: setMinutes(setHours(startOfToday(), 7), 15),
+      //   endDate: addDays(setMinutes(setHours(startOfToday(), 19), 15), 1),
+      //   // BE CAREFUL! multiple of interval time (2 hours)
+      // },
+    );
 
   const handleEventChange = (event: CalEvent) => {
     setEvents((prevEvents) => {
@@ -68,6 +69,8 @@ function DailyZoom() {
         }}
         extendFrom={extendFrom} // don't pass to hide extend button
         extendTo={extendTo}
+        extendWithScroll
+        changeDates={changeDates} // don't pass to hide move date button
         // Uncomment to test with dates different that 00:00
         // firstDay={setMinutes(setHours(startOfToday(), 7), 15)}
         // lastDay={addDays(setMinutes(setHours(startOfToday(), 19), 15), 1)}
