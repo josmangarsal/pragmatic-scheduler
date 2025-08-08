@@ -9,7 +9,7 @@ export const useCreatingEvent = ({
   ref,
   gridWidth,
   cols,
-  rows,
+  rows, // visible rows taking into account the scroll
 }: {
   ref: React.RefObject<HTMLElement>;
   gridWidth: number;
@@ -76,9 +76,10 @@ export const useCreatingEvent = ({
 
       const startY = e.clientY - bounds.top + el.scrollTop;
       const startRow = Math.floor(startY / config.rowHeight) - 1;
+      const startRowVisible = startY / config.rowHeight - 1;
 
       if (startCol < 0 || startRow < 0) return;
-      if (startRow >= rows) return;
+      if (startRowVisible >= rows) return;
       if (startCol >= cols) return;
 
       if (isCellOccupied(startCol, startCol + 1, startRow)) return;

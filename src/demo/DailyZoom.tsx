@@ -65,7 +65,7 @@ function DailyZoom() {
         onEventChange={handleEventChange}
         config={{
           ...config,
-          // rowsToDisplay: 2, // uncomment to test with 2 rows and see how scroll works
+          rowsToDisplay: 2.5, // uncomment to test with 2 rows and see how scroll works
         }}
         extendFrom={extendFrom} // don't pass to hide extend button
         extendTo={extendTo}

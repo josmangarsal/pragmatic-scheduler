@@ -244,7 +244,6 @@ export const useScrollLoading = (
 
       return (
         <div
-          className={`loading-bar-container ${direction}`}
           style={{
             position: 'absolute',
             top: 0,
@@ -261,7 +260,6 @@ export const useScrollLoading = (
           }}
         >
           <div
-            className="loading-bar-fill"
             style={{
               position: 'absolute',
               top: 0,

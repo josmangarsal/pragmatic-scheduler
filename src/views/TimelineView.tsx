@@ -29,6 +29,7 @@ export const TimelineView = () => {
     calendarBounds: { totalDivisions, start, end },
     onEventChange,
     setResizingEvent,
+    extendWithScroll,
   } = useContext(SchedulerContext);
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -59,6 +60,8 @@ export const TimelineView = () => {
   const prevStartDate = useRef<Date | null>();
   const prevEndDate = useRef<Date | null>();
   useEffect(() => {
+    if (extendWithScroll) return;
+
     // Scroll to start on expand end date
     if (prevStartDate.current && prevStartDate.current?.getTime() !== start.getTime()) {
       prevStartDate.current = start;
@@ -99,7 +102,7 @@ export const TimelineView = () => {
         behavior: 'smooth',
       });
     }
-  }, [activeDate, config.daysToDisplay, end, start]);
+  }, [activeDate, config.daysToDisplay, end, extendWithScroll, start]);
 
   // Lock vertical scroll
   useEffect(() => {
@@ -332,7 +335,7 @@ export const TimelineView = () => {
     ref: ref,
     gridWidth: gridWidth,
     cols: cols,
-    rows: resources.length,
+    rows: config.rowsToDisplay ? config.rowsToDisplay : resources.length,
   });
 
   const { ScrollReboundLoader } = useScrollLoading({ scrollRef: ref });
