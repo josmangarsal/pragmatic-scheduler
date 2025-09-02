@@ -54,6 +54,7 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
   const [visibleFirstDay, setVisibleFirstDay] = useState(false);
   const [visibleLastDay, setVisibleLastDay] = useState(false);
   const [nowLocked, setNowLocked] = useState(false);
+  const [initializedNow, setInitializedNow] = useState(false);
 
   useEffect(() => {
     if (ref) {
@@ -177,6 +178,14 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
       }
     };
   }, [handleGoNow, nowLocked]);
+
+  useEffect(() => {
+    // If go now is enabled and now is within the visible range, go now to init view
+    if (showGoNow && !initializedNow) {
+      handleGoNow();
+      setInitializedNow(true);
+    }
+  }, [goNow, handleGoNow, initializedNow, showGoNow]);
 
   const leftSidePx = useMemo(() => {
     if (showGoNow && lockNow) {
