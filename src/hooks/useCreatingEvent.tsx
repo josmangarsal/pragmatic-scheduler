@@ -68,7 +68,8 @@ export const useCreatingEvent = ({
     let isPressed = false;
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0) return; // Only left click
+      if ((e.target as HTMLElement)?.className === 'os-scrollbar-handle') return; // Ignore clicks on scroll bar
 
       const bounds = el.getBoundingClientRect();
       const startX = e.clientX - bounds.left + el.scrollLeft;
