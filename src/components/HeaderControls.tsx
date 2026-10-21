@@ -24,12 +24,6 @@ const FloatingHeaderControl = styled.div<HeaderProps>`
   top: 0px;
   left: ${(props) => props.left || 'auto'};
   right: ${(props) => props.right || 'auto'};
-  opacity: 0.3;
-  transition: opacity 0.3s ease;
-
-  &:hover {
-    opacity: 1;
-  }
 `;
 
 export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDivElement | null }) => {
