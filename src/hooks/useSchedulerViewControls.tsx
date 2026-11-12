@@ -52,47 +52,6 @@ export const useSchedulerViewControls = (
     }
   }, [initialDate, currentStartDate, currentEndDate, currentDaysToDisplay, currentPrevDays]);
 
-  // Update startDate and endDate when initialDate changes
-  /*
-  const prevInitialDate = useRef<Date | null>(null);
-  useEffect(() => {
-    if (!prevInitialDate.current) {
-      prevInitialDate.current = initialDate;
-      return;
-    }
-
-    if (initialDate.getTime() > prevInitialDate.current.getTime()) {
-      const initialDateShift = differenceInDays(initialDate, prevInitialDate.current);
-
-      const updatedCurrentStartDate = addDays(currentStartDate, initialDateShift);
-      if (updatedCurrentStartDate.getTime() !== currentStartDate.getTime()) {
-        setCurrentStartDate(updatedCurrentStartDate);
-      }
-
-      const updatedCurrentEndDate = addDays(currentEndDate, initialDateShift);
-      if (updatedCurrentEndDate.getTime() !== currentEndDate.getTime()) {
-        setCurrentEndDate(updatedCurrentEndDate);
-      }
-
-      prevInitialDate.current = initialDate;
-    } else if (initialDate.getTime() < prevInitialDate.current.getTime()) {
-      const initialDateShift = differenceInDays(prevInitialDate.current, initialDate);
-
-      const updatedCurrentStartDate = addDays(currentStartDate, -initialDateShift);
-      if (updatedCurrentStartDate.getTime() !== currentStartDate.getTime()) {
-        setCurrentStartDate(updatedCurrentStartDate);
-      }
-
-      const updatedCurrentEndDate = addDays(currentEndDate, -initialDateShift);
-      if (updatedCurrentEndDate.getTime() !== currentEndDate.getTime()) {
-        setCurrentEndDate(updatedCurrentEndDate);
-      }
-
-      prevInitialDate.current = initialDate;
-    }
-  }, [initialDate, currentStartDate, currentEndDate, setCurrentStartDate, setCurrentEndDate]);
-  */
-
   const extendFrom = useCallback(() => {
     setCurrentStartDate(addDays(currentStartDate, -1));
   }, [setCurrentStartDate, currentStartDate]);

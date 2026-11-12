@@ -56,53 +56,50 @@ export const TimelineView = () => {
     [gridLayouts],
   );
 
-  const prevActiveDate = useRef<Date | null>();
-  const prevStartDate = useRef<Date | null>();
-  const prevEndDate = useRef<Date | null>();
+  // Scroll target is computed lazily from the live scrollWidth, because the division width is recalculated
+  // asynchronously after a view change and the width used at effect time can be stale.
+  const prevActiveDate = useRef<Date | null>(null);
+  const prevStartDate = useRef<Date | null>(null);
+  const prevEndDate = useRef<Date | null>(null);
+  const pendingScroll = useRef<((el: HTMLDivElement) => number) | null>(null);
+  const pendingTimer = useRef<ReturnType<typeof setTimeout>>();
+
   useEffect(() => {
-    if (extendWithScroll) return;
-
-    // Scroll to start on expand end date
-    if (prevStartDate.current && prevStartDate.current?.getTime() !== start.getTime()) {
-      prevStartDate.current = start;
-      ref.current?.scrollTo({
-        left: 0,
-        behavior: 'smooth',
-      });
-      return;
-    }
-    // Scroll to end on expand end date
-    if (prevEndDate.current && prevEndDate.current?.getTime() !== end.getTime()) {
-      prevEndDate.current = end;
-      ref.current?.scrollTo({
-        left: ref.current.scrollWidth,
-        behavior: 'smooth',
-      });
-      return;
-    }
-    setTimeout(() => {
-      prevStartDate.current = start;
-      prevEndDate.current = end;
-    }, 100);
-
-    // Don't scroll if activeDate has not changed
-    if (prevActiveDate.current?.getTime() === activeDate.getTime()) return;
+    const activeChanged = prevActiveDate.current?.getTime() !== activeDate.getTime();
+    const startChanged = !!prevStartDate.current && prevStartDate.current.getTime() !== start.getTime();
+    const endChanged = !!prevEndDate.current && prevEndDate.current.getTime() !== end.getTime();
     prevActiveDate.current = activeDate;
+    prevStartDate.current = start;
+    prevEndDate.current = end;
 
-    if (isBefore(start, activeDate) && isBefore(activeDate, end)) {
-      // scroll to activeDate, that must be inside the current date interval
-      ref.current?.scrollTo({
-        left: dateToPosition(activeDate, start, end, ref.current.scrollWidth),
-        behavior: 'smooth',
-      });
-    } else {
-      // scroll to the current date (there is 1 day in the past)
-      ref.current?.scrollTo({
-        left: ref.current.scrollWidth * (1 / (config.daysToDisplay + 1)),
-        behavior: 'smooth',
-      });
+    let target: ((el: HTMLDivElement) => number) | null = null;
+    if (activeChanged) {
+      // activeDate is the explicit navigation target and has priority over range changes
+      target = (el) =>
+        isBefore(start, activeDate) && isBefore(activeDate, end)
+          ? dateToPosition(activeDate, start, end, el.scrollWidth)
+          : el.scrollWidth * (1 / (config.daysToDisplay + 1));
+    } else if (!extendWithScroll && startChanged) {
+      target = () => 0; // range extended to the past: show the new first day
+    } else if (!extendWithScroll && endChanged) {
+      target = (el) => el.scrollWidth; // range extended to the future: show the new last day
     }
+    if (!target) return;
+
+    pendingScroll.current = target;
+    clearTimeout(pendingTimer.current);
+    pendingTimer.current = setTimeout(() => {
+      pendingScroll.current = null;
+    }, 1500);
+    const frame = requestAnimationFrame(() => {
+      if (ref.current && pendingScroll.current) {
+        ref.current.scrollTo({ left: pendingScroll.current(ref.current), behavior: 'smooth' });
+      }
+    });
+    return () => cancelAnimationFrame(frame);
   }, [activeDate, config.daysToDisplay, end, extendWithScroll, start]);
+
+  useEffect(() => () => clearTimeout(pendingTimer.current), []);
 
   // Lock vertical scroll
   useEffect(() => {
@@ -305,6 +302,13 @@ export const TimelineView = () => {
     () => (cols * config.divisionWidth) / config.divisionParts,
     [cols, config.divisionParts, config.divisionWidth],
   );
+
+  // Re-apply the pending scroll while the grid width settles after a view change
+  useEffect(() => {
+    if (ref.current && pendingScroll.current) {
+      ref.current.scrollTo({ left: pendingScroll.current(ref.current), behavior: 'auto' });
+    }
+  }, [gridWidth]);
 
   // Observe events container to recalculate grid width to fit screen
   useEffect(() => {
