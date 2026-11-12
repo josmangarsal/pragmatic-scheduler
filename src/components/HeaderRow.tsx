@@ -17,13 +17,13 @@ export const HeaderRow = ({
 }) => {
   const {
     HeaderRow: HeaderRowOverride,
-    config: { rowHeight },
+    config: { rowHeight, rowHeaderHeight },
   } = useContext(SchedulerContext);
 
   return (
     <>
       <HeaderControls eventsBoxElement={eventsBoxElement} />
-      <Box flex={1} display="flex" minHeight={rowHeight} maxHeight={rowHeight}>
+      <Box flex={1} display="flex" minHeight={rowHeaderHeight ?? rowHeight} maxHeight={rowHeaderHeight ?? rowHeight}>
         {/* Add columns for each day */}
         {HeaderRowOverride ? (
           <HeaderRowOverride days={days} />
@@ -55,9 +55,11 @@ const HeaderCell = ({ day }: { day: ScheduleDay }) => {
       overflow="hidden"
       style={{ position: 'relative', overflow: 'visible' }}
     >
-      <Typography variant="tableHeader" color={isActive ? 'secondary.main' : 'text.disabled'} p={0.75}>
-        {format(day.date, 'EEE P')}
-      </Typography>
+      <Box sx={{ position: 'sticky', left: 0, width: 'fit-content', maxWidth: '100%', zIndex: 1 }}>
+        <Typography variant="tableHeader" color={isActive ? 'secondary.main' : 'text.disabled'} p={0.75}>
+          {format(day.date, 'EEE P')}
+        </Typography>
+      </Box>
       <Box display="flex">
         {day.divisions.map((division, index) => (
           <Box key={index} display="flex" flexDirection="column" flex={1} minWidth={width} maxWidth={width}>

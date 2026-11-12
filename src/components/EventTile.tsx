@@ -1,5 +1,7 @@
 import { MutableRefObject, useContext, useMemo } from 'react';
-import { Box, Tooltip, Typography, TypographyProps, styled } from '@mui/material';
+import { Box, IconButton, Tooltip, Typography, TypographyProps, styled } from '@mui/material';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import { CalEvent, InfoFlowData, OverflowData } from '../types';
 import { differenceInCalendarDays, format } from 'date-fns';
 import { SchedulerContext } from './Scheduler';
@@ -29,7 +31,7 @@ export const EventTile = ({
   const { EventTile: EventTileOverride, resizingEvent } = useContext(SchedulerContext);
   const Component = EventTileOverride || DefaultEventTile;
 
-  const { contentRef, isContentVisible, isEllipsis } = useEventInfoFlow(infoFlowData);
+  const { contentRef, isContentVisible, isEllipsis, onGoToStart, onGoToEnd } = useEventInfoFlow(infoFlowData);
 
   const showTooltip = useMemo(() => !isContentVisible || isEllipsis, [isContentVisible, isEllipsis]);
 
@@ -66,6 +68,8 @@ export const EventTile = ({
       showRightOverflow={rightOverflow}
       resizingStartTime={resizingStartTime}
       resizingEndTime={resizingEndTime}
+      onGoToStart={onGoToStart}
+      onGoToEnd={onGoToEnd}
     />
   );
 };
@@ -81,6 +85,8 @@ export const DefaultEventTile = ({
   showRightOverflow,
   resizingStartTime,
   resizingEndTime,
+  onGoToStart,
+  onGoToEnd,
 }: {
   event: CalEvent;
   tooltip?: React.ReactNode;
@@ -91,6 +97,8 @@ export const DefaultEventTile = ({
   showRightOverflow?: boolean;
   resizingStartTime?: Date | null;
   resizingEndTime?: Date | null;
+  onGoToStart?: () => void;
+  onGoToEnd?: () => void;
 }) => {
   const title = useMemo(() => event.title || 'No Title', [event.title]);
 
@@ -166,10 +174,45 @@ export const DefaultEventTile = ({
           <InnerText color={event.textColor || 'white'} className="ellipsisText">
             {subtitle}
           </InnerText>
+          {(onGoToStart || onGoToEnd) && (
+            <Box className="not-draggable" display="flex" gap={0.5}>
+              {onGoToStart && (
+                <IconButton
+                  size="small"
+                  title="Go to event start"
+                  sx={{ color: event.textColor || 'white', p: 0 }}
+                  onClick={onGoToStart}
+                >
+                  <FirstPageIcon fontSize="small" />
+                </IconButton>
+              )}
+              {onGoToEnd && (
+                <IconButton
+                  size="small"
+                  title="Go to event end"
+                  sx={{ color: event.textColor || 'white', p: 0 }}
+                  onClick={onGoToEnd}
+                >
+                  <LastPageIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+          )}
         </Box>
       </Container>
     ),
-    [contentRef, event.bgColor, event.id, event.textColor, middleOverflow, overflowStyle, subtitle, title],
+    [
+      contentRef,
+      event.bgColor,
+      event.id,
+      event.textColor,
+      middleOverflow,
+      onGoToEnd,
+      onGoToStart,
+      overflowStyle,
+      subtitle,
+      title,
+    ],
   );
 
   const eventTooltip = useMemo(

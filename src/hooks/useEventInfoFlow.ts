@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InfoFlowData } from '../types';
 import { useEllipsisObserver } from './useEllipsisObserver';
 import { useVisibilityObserver } from './useVisibilityObserver';
@@ -53,13 +53,32 @@ export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
     [eventEndX, eventStartX],
   );
 
+  const [startHidden, setStartHidden] = useState(false);
+  const [endHidden, setEndHidden] = useState(false);
+
   const handleScroll = useCallback(() => {
+    if (container) {
+      const viewRight = container.scrollLeft + container.clientWidth;
+      setStartHidden(eventStartX < container.scrollLeft && eventEndX > container.scrollLeft);
+      setEndHidden(eventEndX > viewRight && eventStartX < viewRight);
+    }
+
     const content = contentRef?.current;
     if (!container || !content) return;
 
     // Move event content inside the event box
     moveContent(container, content);
-  }, [container, moveContent]);
+  }, [container, eventEndX, eventStartX, moveContent]);
+
+  const goToStart = useCallback(
+    () => container?.scrollTo({ left: eventStartX, behavior: 'smooth' }),
+    [container, eventStartX],
+  );
+
+  const goToEnd = useCallback(
+    () => container?.scrollTo({ left: eventEndX - container.clientWidth, behavior: 'smooth' }),
+    [container, eventEndX],
+  );
 
   useEffect(() => {
     if (!container) return;
@@ -86,9 +105,14 @@ export const useEventInfoFlow = (infoFlowData: InfoFlowData | null) => {
 
   const { isEllipsis } = useEllipsisObserver(contentRef);
 
+  const onGoToStart = startHidden ? goToStart : undefined;
+  const onGoToEnd = endHidden ? goToEnd : undefined;
+
   return {
     contentRef,
     isContentVisible,
     isEllipsis,
+    onGoToStart,
+    onGoToEnd,
   };
 };

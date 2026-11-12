@@ -42,6 +42,8 @@ export type CalEvent = {
 export type Config = {
   resourceColumnWidth: number;
   rowHeight: number;
+  /** Height of the header rows (dates and resource header). Defaults to `rowHeight`. */
+  rowHeaderHeight?: number;
   divisionWidth: number;
   unAssignedRows?: number;
   divisionParts: number;

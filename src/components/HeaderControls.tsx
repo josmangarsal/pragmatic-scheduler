@@ -8,11 +8,17 @@ import LockClockOutlinedIcon from '@mui/icons-material/LockClockOutlined';
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import { dateToPosition } from '../helpers/datePositionHelper';
 import { addDays } from 'date-fns/addDays';
+import { addMinutes } from 'date-fns/addMinutes';
+import { startOfDay } from 'date-fns/startOfDay';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardDoubleArrowLeftRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowLeftRounded';
 import KeyboardDoubleArrowRightRoundedIcon from '@mui/icons-material/KeyboardDoubleArrowRightRounded';
 import AddIcon from '@mui/icons-material/Add';
+
+const DAY_NAV_MARGIN_PX = 40;
 
 interface HeaderProps {
   left?: string;
@@ -193,6 +199,58 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
 
   const rightSidePx = useMemo(() => '1px', []);
 
+  const [viewport, setViewport] = useState({ left: 0, width: 0, scrollWidth: 0 });
+
+  useEffect(() => {
+    const el = eventsBoxElement;
+    if (!el) return;
+
+    const update = () => setViewport({ left: el.scrollLeft, width: el.clientWidth, scrollWidth: el.scrollWidth });
+
+    update();
+    el.addEventListener('scroll', update);
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(el);
+
+    return () => {
+      el.removeEventListener('scroll', update);
+      resizeObserver.disconnect();
+    };
+  }, [eventsBoxElement]);
+
+  const dayNav = useMemo(() => {
+    if (!viewport.scrollWidth || !viewport.width) return null;
+
+    const toPx = (date: Date) => dateToPosition(date, start, end, viewport.scrollWidth);
+    const fromPx = (px: number) =>
+      new Date(start.getTime() + (px / viewport.scrollWidth) * (end.getTime() - start.getTime()));
+
+    const day = startOfDay(fromPx(viewport.left));
+    const dayStart = day < start ? start : day;
+    const dayEndRaw = addMinutes(addDays(day, 1), -1);
+    const dayEnd = dayEndRaw > end ? end : dayEndRaw;
+    const viewRight = viewport.left + viewport.width;
+    const nowPx = toPx(new Date());
+    const nowInRange = start < new Date() && end > new Date();
+
+    const showStart = toPx(dayStart) < viewport.left - DAY_NAV_MARGIN_PX;
+    const showEnd = toPx(dayEnd) > viewRight + DAY_NAV_MARGIN_PX;
+    const showNow = nowInRange && (nowPx < viewport.left || nowPx > viewRight);
+
+    return { dayStart, dayEnd, showStart, showEnd, showNow };
+  }, [end, start, viewport]);
+
+  const scrollToDate = useCallback(
+    (date: Date, align: 'start' | 'end' | 'center') => {
+      if (!eventsBoxElement) return;
+      const px = dateToPosition(date, start, end, eventsBoxElement.scrollWidth);
+      const offset =
+        align === 'start' ? 0 : align === 'end' ? eventsBoxElement.clientWidth : eventsBoxElement.clientWidth / 2;
+      eventsBoxElement.scrollTo({ left: px - offset, behavior: 'smooth' });
+    },
+    [end, eventsBoxElement, start],
+  );
+
   const nowSidePx = useMemo(() => {
     if (showGoNow && lockNow) {
       return '80px';
@@ -220,6 +278,27 @@ export const HeaderControls = ({ eventsBoxElement }: { eventsBoxElement: HTMLDiv
         zIndex: 10,
       }}
     >
+      {dayNav?.showStart && (
+        <FloatingHeaderControl left="130px">
+          <IconButton size="small" title="Go to start of day" onClick={() => scrollToDate(dayNav.dayStart, 'start')}>
+            <FirstPageIcon />
+          </IconButton>
+        </FloatingHeaderControl>
+      )}
+      {dayNav?.showEnd && (
+        <FloatingHeaderControl left={dayNav.showStart ? '165px' : '130px'}>
+          <IconButton size="small" title="Go to end of day" onClick={() => scrollToDate(dayNav.dayEnd, 'end')}>
+            <LastPageIcon />
+          </IconButton>
+        </FloatingHeaderControl>
+      )}
+      {dayNav?.showNow && !showGoNow && (
+        <FloatingHeaderControl left={`${130 + 35 * (Number(dayNav.showStart) + Number(dayNav.showEnd))}px`}>
+          <IconButton size="small" title="Go to now" onClick={() => scrollToDate(new Date(), 'center')}>
+            <ScheduleRoundedIcon />
+          </IconButton>
+        </FloatingHeaderControl>
+      )}
       {showScrollLeft && (
         // < ...
         <FloatingHeaderControl right={leftSidePx}>
