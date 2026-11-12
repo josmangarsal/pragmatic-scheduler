@@ -76,8 +76,9 @@ export const useCreatingEvent = ({
       const startCol = (startX / gridWidth) * cols;
 
       const startY = e.clientY - bounds.top + el.scrollTop;
-      const startRow = Math.floor(startY / config.rowHeight) - 1;
-      const startRowVisible = startY / config.rowHeight - 1;
+      const gridY = startY - (config.rowHeaderHeight ?? config.rowHeight);
+      const startRow = Math.floor(gridY / config.rowHeight);
+      const startRowVisible = gridY / config.rowHeight;
 
       if (startCol < 0 || startRow < 0) return;
       if (startRowVisible >= rows) return;
@@ -173,6 +174,7 @@ export const useCreatingEvent = ({
     cols,
     gridWidth,
     config.rowHeight,
+    config.rowHeaderHeight,
     ref,
     dndCreatingEvent,
     newEvent,
